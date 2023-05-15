@@ -1285,7 +1285,7 @@ namespace MediaBrowser.XbmcMetadata.Parsers
             return new PersonInfo
             {
                 Name = name.Trim(),
-                Role = role,
+                Role = role.Trim(),
                 Type = type,
                 SortOrder = sortOrder,
                 ImageUrl = imageUrl

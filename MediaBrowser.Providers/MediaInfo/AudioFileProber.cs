@@ -13,6 +13,7 @@ using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.MediaEncoding;
 using MediaBrowser.Controller.Persistence;
 using MediaBrowser.Controller.Providers;
+using MediaBrowser.Controller.Sorting;
 using MediaBrowser.Model.Dlna;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
@@ -227,7 +228,7 @@ namespace MediaBrowser.Providers.MediaInfo
                         {
                             PeopleHelper.AddPerson(people, new PersonInfo
                             {
-                                Name = albumArtist,
+                                Name = albumArtist.Trim(),
                                 Type = PersonKind.AlbumArtist
                             });
                         }
@@ -240,7 +241,7 @@ namespace MediaBrowser.Providers.MediaInfo
                         {
                             PeopleHelper.AddPerson(people, new PersonInfo
                             {
-                                Name = performer,
+                                Name = performer.Trim(),
                                 Type = PersonKind.Artist
                             });
                         }
@@ -252,7 +253,7 @@ namespace MediaBrowser.Providers.MediaInfo
                         {
                             PeopleHelper.AddPerson(people, new PersonInfo
                             {
-                                Name = composer,
+                                Name = composer.Trim(),
                                 Type = PersonKind.Composer
                             });
                         }
@@ -263,8 +264,8 @@ namespace MediaBrowser.Providers.MediaInfo
                     audio.AlbumArtists = albumArtists;
                 }
 
-                audio.Name = tags.Title;
-                audio.Album = tags.Album;
+                audio.Name = tags.Title.Trim();
+                audio.Album = tags.Album.Trim();
                 audio.IndexNumber = Convert.ToInt32(tags.Track);
                 audio.ParentIndexNumber = Convert.ToInt32(tags.Disc);
 
@@ -277,7 +278,7 @@ namespace MediaBrowser.Providers.MediaInfo
 
                 if (!audio.LockedFields.Contains(MetadataField.Genres))
                 {
-                    audio.Genres = tags.Genres.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+                    audio.Genres = tags.Genres.Trimmed().Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
                 }
 
                 audio.SetProviderId(MetadataProvider.MusicBrainzArtist, tags.MusicBrainzArtistId);

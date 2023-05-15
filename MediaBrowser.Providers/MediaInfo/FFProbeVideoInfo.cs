@@ -539,9 +539,9 @@ namespace MediaBrowser.Providers.MediaInfo
                     {
                         PeopleHelper.AddPerson(people, new PersonInfo
                         {
-                            Name = person.Name,
+                            Name = person.Name.Trim(),
                             Type = person.Type,
-                            Role = person.Role
+                            Role = person.Role.Trim()
                         });
                     }
 
