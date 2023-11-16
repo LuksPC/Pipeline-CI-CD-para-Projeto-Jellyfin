@@ -22,6 +22,7 @@ using MediaBrowser.Controller.Lyrics;
 using MediaBrowser.Controller.Persistence;
 using MediaBrowser.Controller.Playlists;
 using MediaBrowser.Controller.Providers;
+using MediaBrowser.Controller.Trickplay;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
@@ -52,6 +53,7 @@ namespace Emby.Server.Implementations.Dto
         private readonly Lazy<ILiveTvManager> _livetvManagerFactory;
 
         private readonly ILyricManager _lyricManager;
+        private readonly ITrickplayManager _trickplayManager;
 
         public DtoService(
             ILogger<DtoService> logger,
@@ -63,7 +65,8 @@ namespace Emby.Server.Implementations.Dto
             IApplicationHost appHost,
             IMediaSourceManager mediaSourceManager,
             Lazy<ILiveTvManager> livetvManagerFactory,
-            ILyricManager lyricManager)
+            ILyricManager lyricManager,
+            ITrickplayManager trickplayManager)
         {
             _logger = logger;
             _libraryManager = libraryManager;
@@ -75,6 +78,7 @@ namespace Emby.Server.Implementations.Dto
             _mediaSourceManager = mediaSourceManager;
             _livetvManagerFactory = livetvManagerFactory;
             _lyricManager = lyricManager;
+            _trickplayManager = trickplayManager;
         }
 
         private ILiveTvManager LivetvManager => _livetvManagerFactory.Value;
@@ -903,10 +907,11 @@ namespace Emby.Server.Implementations.Dto
                 dto.IsPlaceHolder = supportsPlaceHolders.IsPlaceHolder;
             }
 
+            dto.LUFS = item.LUFS;
+
             // Add audio info
             if (item is Audio audio)
             {
-                dto.LUFS = audio.LUFS;
                 dto.Album = audio.Album;
                 if (audio.ExtraType.HasValue)
                 {
@@ -1056,6 +1061,11 @@ namespace Emby.Server.Implementations.Dto
                 if (options.ContainsField(ItemFields.Chapters))
                 {
                     dto.Chapters = _itemRepo.GetChapters(item);
+                }
+
+                if (options.ContainsField(ItemFields.Trickplay))
+                {
+                    dto.Trickplay = _trickplayManager.GetTrickplayManifest(item).GetAwaiter().GetResult();
                 }
 
                 if (video.ExtraType.HasValue)

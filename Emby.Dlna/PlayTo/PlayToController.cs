@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Emby.Dlna.Didl;
 using Jellyfin.Data.Entities;
+using Jellyfin.Data.Enums;
 using Jellyfin.Data.Events;
 using MediaBrowser.Controller.Dlna;
 using MediaBrowser.Controller.Drawing;
@@ -42,7 +43,7 @@ namespace Emby.Dlna.PlayTo
 
         private readonly IDeviceDiscovery _deviceDiscovery;
         private readonly string _serverAddress;
-        private readonly string _accessToken;
+        private readonly string? _accessToken;
 
         private readonly List<PlaylistItem> _playlist = new List<PlaylistItem>();
         private Device _device;
@@ -59,7 +60,7 @@ namespace Emby.Dlna.PlayTo
             IUserManager userManager,
             IImageProcessor imageProcessor,
             string serverAddress,
-            string accessToken,
+            string? accessToken,
             IDeviceDiscovery deviceDiscovery,
             IUserDataManager userDataManager,
             ILocalizationManager localization,
@@ -577,7 +578,7 @@ namespace Emby.Dlna.PlayTo
 
         private PlaylistItem GetPlaylistItem(BaseItem item, MediaSourceInfo[] mediaSources, DeviceProfile profile, string deviceId, string? mediaSourceId, int? audioStreamIndex, int? subtitleStreamIndex)
         {
-            if (string.Equals(item.MediaType, MediaType.Video, StringComparison.OrdinalIgnoreCase))
+            if (item.MediaType == MediaType.Video)
             {
                 return new PlaylistItem
                 {
@@ -597,7 +598,7 @@ namespace Emby.Dlna.PlayTo
                 };
             }
 
-            if (string.Equals(item.MediaType, MediaType.Audio, StringComparison.OrdinalIgnoreCase))
+            if (item.MediaType == MediaType.Audio)
             {
                 return new PlaylistItem
                 {
@@ -615,7 +616,7 @@ namespace Emby.Dlna.PlayTo
                 };
             }
 
-            if (string.Equals(item.MediaType, MediaType.Photo, StringComparison.OrdinalIgnoreCase))
+            if (item.MediaType == MediaType.Photo)
             {
                 return PlaylistItemFactory.Create((Photo)item, profile);
             }
@@ -683,15 +684,14 @@ namespace Emby.Dlna.PlayTo
 
             if (disposing)
             {
+                _device.PlaybackStart -= OnDevicePlaybackStart;
+                _device.PlaybackProgress -= OnDevicePlaybackProgress;
+                _device.PlaybackStopped -= OnDevicePlaybackStopped;
+                _device.MediaChanged -= OnDeviceMediaChanged;
+                _deviceDiscovery.DeviceLeft -= OnDeviceDiscoveryDeviceLeft;
+                _device.OnDeviceUnavailable = null;
                 _device.Dispose();
             }
-
-            _device.PlaybackStart -= OnDevicePlaybackStart;
-            _device.PlaybackProgress -= OnDevicePlaybackProgress;
-            _device.PlaybackStopped -= OnDevicePlaybackStopped;
-            _device.MediaChanged -= OnDeviceMediaChanged;
-            _deviceDiscovery.DeviceLeft -= OnDeviceDiscoveryDeviceLeft;
-            _device.OnDeviceUnavailable = null;
 
             _disposed = true;
         }

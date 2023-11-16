@@ -1,5 +1,3 @@
-#nullable disable
-
 #pragma warning disable CS1591
 
 using System;
@@ -45,8 +43,8 @@ namespace Emby.Dlna.Didl
         private readonly DeviceProfile _profile;
         private readonly IImageProcessor _imageProcessor;
         private readonly string _serverAddress;
-        private readonly string _accessToken;
-        private readonly User _user;
+        private readonly string? _accessToken;
+        private readonly User? _user;
         private readonly IUserDataManager _userDataManager;
         private readonly ILocalizationManager _localization;
         private readonly IMediaSourceManager _mediaSourceManager;
@@ -56,10 +54,10 @@ namespace Emby.Dlna.Didl
 
         public DidlBuilder(
             DeviceProfile profile,
-            User user,
+            User? user,
             IImageProcessor imageProcessor,
             string serverAddress,
-            string accessToken,
+            string? accessToken,
             IUserDataManager userDataManager,
             ILocalizationManager localization,
             IMediaSourceManager mediaSourceManager,
@@ -85,7 +83,7 @@ namespace Emby.Dlna.Didl
             return url + "&dlnaheaders=true";
         }
 
-        public string GetItemDidl(BaseItem item, User user, BaseItem context, string deviceId, Filter filter, StreamInfo streamInfo)
+        public string GetItemDidl(BaseItem item, User? user, BaseItem? context, string deviceId, Filter filter, StreamInfo streamInfo)
         {
             var settings = new XmlWriterSettings
             {
@@ -140,12 +138,12 @@ namespace Emby.Dlna.Didl
         public void WriteItemElement(
             XmlWriter writer,
             BaseItem item,
-            User user,
-            BaseItem context,
+            User? user,
+            BaseItem? context,
             StubType? contextStubType,
             string deviceId,
             Filter filter,
-            StreamInfo streamInfo = null)
+            StreamInfo? streamInfo = null)
         {
             var clientId = GetClientId(item, null);
 
@@ -176,13 +174,14 @@ namespace Emby.Dlna.Didl
 
             if (item is IHasMediaSources)
             {
-                if (string.Equals(item.MediaType, MediaType.Audio, StringComparison.OrdinalIgnoreCase))
+                switch (item.MediaType)
                 {
-                    AddAudioResource(writer, item, deviceId, filter, streamInfo);
-                }
-                else if (string.Equals(item.MediaType, MediaType.Video, StringComparison.OrdinalIgnoreCase))
-                {
-                    AddVideoResource(writer, item, deviceId, filter, streamInfo);
+                    case MediaType.Audio:
+                        AddAudioResource(writer, item, deviceId, filter, streamInfo);
+                        break;
+                    case MediaType.Video:
+                        AddVideoResource(writer, item, deviceId, filter, streamInfo);
+                        break;
                 }
             }
 
@@ -190,7 +189,7 @@ namespace Emby.Dlna.Didl
             writer.WriteFullEndElement();
         }
 
-        private void AddVideoResource(XmlWriter writer, BaseItem video, string deviceId, Filter filter, StreamInfo streamInfo = null)
+        private void AddVideoResource(XmlWriter writer, BaseItem video, string deviceId, Filter filter, StreamInfo? streamInfo = null)
         {
             if (streamInfo is null)
             {
@@ -203,7 +202,7 @@ namespace Emby.Dlna.Didl
                     Profile = _profile,
                     DeviceId = deviceId,
                     MaxBitrate = _profile.MaxStreamingBitrate
-                });
+                }) ?? throw new InvalidOperationException("No optimal video stream found");
             }
 
             var targetWidth = streamInfo.TargetWidth;
@@ -315,7 +314,7 @@ namespace Emby.Dlna.Didl
 
             var mediaSource = streamInfo.MediaSource;
 
-            if (mediaSource.RunTimeTicks.HasValue)
+            if (mediaSource?.RunTimeTicks.HasValue == true)
             {
                 writer.WriteAttributeString("duration", TimeSpan.FromTicks(mediaSource.RunTimeTicks.Value).ToString("c", CultureInfo.InvariantCulture));
             }
@@ -410,7 +409,7 @@ namespace Emby.Dlna.Didl
             writer.WriteFullEndElement();
         }
 
-        private string GetDisplayName(BaseItem item, StubType? itemStubType, BaseItem context)
+        private string GetDisplayName(BaseItem item, StubType? itemStubType, BaseItem? context)
         {
             if (itemStubType.HasValue)
             {
@@ -452,7 +451,7 @@ namespace Emby.Dlna.Didl
         /// <param name="episode">The episode.</param>
         /// <param name="context">Current context.</param>
         /// <returns>Formatted name of the episode.</returns>
-        private string GetEpisodeDisplayName(Episode episode, BaseItem context)
+        private string GetEpisodeDisplayName(Episode episode, BaseItem? context)
         {
             string[] components;
 
@@ -530,7 +529,7 @@ namespace Emby.Dlna.Didl
 
         private bool NotNullOrWhiteSpace(string s) => !string.IsNullOrWhiteSpace(s);
 
-        private void AddAudioResource(XmlWriter writer, BaseItem audio, string deviceId, Filter filter, StreamInfo streamInfo = null)
+        private void AddAudioResource(XmlWriter writer, BaseItem audio, string deviceId, Filter filter, StreamInfo? streamInfo = null)
         {
             writer.WriteStartElement(string.Empty, "res", NsDidl);
 
@@ -544,14 +543,14 @@ namespace Emby.Dlna.Didl
                     MediaSources = sources.ToArray(),
                     Profile = _profile,
                     DeviceId = deviceId
-                });
+                }) ?? throw new InvalidOperationException("No optimal audio stream found");
             }
 
             var url = NormalizeDlnaMediaUrl(streamInfo.ToUrl(_serverAddress, _accessToken));
 
             var mediaSource = streamInfo.MediaSource;
 
-            if (mediaSource.RunTimeTicks.HasValue)
+            if (mediaSource?.RunTimeTicks is not null)
             {
                 writer.WriteAttributeString("duration", TimeSpan.FromTicks(mediaSource.RunTimeTicks.Value).ToString("c", CultureInfo.InvariantCulture));
             }
@@ -634,7 +633,7 @@ namespace Emby.Dlna.Didl
                 // Samsung sometimes uses 1 as root
                 || string.Equals(id, "1", StringComparison.OrdinalIgnoreCase);
 
-        public void WriteFolderElement(XmlWriter writer, BaseItem folder, StubType? stubType, BaseItem context, int childCount, Filter filter, string requestedId = null)
+        public void WriteFolderElement(XmlWriter writer, BaseItem folder, StubType? stubType, BaseItem context, int childCount, Filter filter, string? requestedId = null)
         {
             writer.WriteStartElement(string.Empty, "container", NsDidl);
 
@@ -678,14 +677,14 @@ namespace Emby.Dlna.Didl
             writer.WriteFullEndElement();
         }
 
-        private void AddSamsungBookmarkInfo(BaseItem item, User user, XmlWriter writer, StreamInfo streamInfo)
+        private void AddSamsungBookmarkInfo(BaseItem item, User? user, XmlWriter writer, StreamInfo? streamInfo)
         {
             if (!item.SupportsPositionTicksResume || item is Folder)
             {
                 return;
             }
 
-            XmlAttribute secAttribute = null;
+            XmlAttribute? secAttribute = null;
             foreach (var attribute in _profile.XmlRootAttributes)
             {
                 if (string.Equals(attribute.Name, "xmlns:sec", StringComparison.OrdinalIgnoreCase))
@@ -695,8 +694,8 @@ namespace Emby.Dlna.Didl
                 }
             }
 
-            // Not a samsung device
-            if (secAttribute is null)
+            // Not a samsung device or no user data
+            if (secAttribute is null || user is null)
             {
                 return;
             }
@@ -717,7 +716,7 @@ namespace Emby.Dlna.Didl
         /// <summary>
         /// Adds fields used by both items and folders.
         /// </summary>
-        private void AddCommonFields(BaseItem item, StubType? itemStubType, BaseItem context, XmlWriter writer, Filter filter)
+        private void AddCommonFields(BaseItem item, StubType? itemStubType, BaseItem? context, XmlWriter writer, Filter filter)
         {
             // Don't filter on dc:title because not all devices will include it in the filter
             // MediaMonkey for example won't display content without a title
@@ -795,7 +794,7 @@ namespace Emby.Dlna.Didl
 
             if (item.IsDisplayedAsFolder || stubType.HasValue)
             {
-                string classType = null;
+                string? classType = null;
 
                 if (!_profile.RequiresPlainFolders)
                 {
@@ -823,15 +822,15 @@ namespace Emby.Dlna.Didl
 
                 writer.WriteString(classType ?? "object.container.storageFolder");
             }
-            else if (string.Equals(item.MediaType, MediaType.Audio, StringComparison.OrdinalIgnoreCase))
+            else if (item.MediaType == MediaType.Audio)
             {
                 writer.WriteString("object.item.audioItem.musicTrack");
             }
-            else if (string.Equals(item.MediaType, MediaType.Photo, StringComparison.OrdinalIgnoreCase))
+            else if (item.MediaType == MediaType.Photo)
             {
                 writer.WriteString("object.item.imageItem.photo");
             }
-            else if (string.Equals(item.MediaType, MediaType.Video, StringComparison.OrdinalIgnoreCase))
+            else if (item.MediaType == MediaType.Video)
             {
                 if (!_profile.RequiresPlainVideoItems && item is Movie)
                 {
@@ -899,7 +898,7 @@ namespace Emby.Dlna.Didl
             }
         }
 
-        private void AddGeneralProperties(BaseItem item, StubType? itemStubType, BaseItem context, XmlWriter writer, Filter filter)
+        private void AddGeneralProperties(BaseItem item, StubType? itemStubType, BaseItem? context, XmlWriter writer, Filter filter)
         {
             AddCommonFields(item, itemStubType, context, writer, filter);
 
@@ -975,7 +974,7 @@ namespace Emby.Dlna.Didl
 
         private void AddCover(BaseItem item, StubType? stubType, XmlWriter writer)
         {
-            ImageDownloadInfo imageInfo = GetImageInfo(item);
+            ImageDownloadInfo? imageInfo = GetImageInfo(item);
 
             if (imageInfo is null)
             {
@@ -1008,8 +1007,7 @@ namespace Emby.Dlna.Didl
 
             if (!_profile.EnableAlbumArtInDidl)
             {
-                if (string.Equals(item.MediaType, MediaType.Audio, StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(item.MediaType, MediaType.Video, StringComparison.OrdinalIgnoreCase))
+                if (item.MediaType == MediaType.Audio || item.MediaType == MediaType.Video)
                 {
                     if (!stubType.HasValue)
                     {
@@ -1018,7 +1016,7 @@ namespace Emby.Dlna.Didl
                 }
             }
 
-            if (!_profile.EnableSingleAlbumArtLimit || string.Equals(item.MediaType, MediaType.Photo, StringComparison.OrdinalIgnoreCase))
+            if (!_profile.EnableSingleAlbumArtLimit || item.MediaType == MediaType.Photo)
             {
                 AddImageResElement(item, writer, 4096, 4096, "jpg", "JPEG_LRG");
                 AddImageResElement(item, writer, 1024, 768, "jpg", "JPEG_MED");
@@ -1073,7 +1071,7 @@ namespace Emby.Dlna.Didl
             writer.WriteFullEndElement();
         }
 
-        private ImageDownloadInfo GetImageInfo(BaseItem item)
+        private ImageDownloadInfo? GetImageInfo(BaseItem item)
         {
             if (item.HasImage(ImageType.Primary))
             {
@@ -1118,7 +1116,7 @@ namespace Emby.Dlna.Didl
             return null;
         }
 
-        private BaseItem GetFirstParentWithImageBelowUserRoot(BaseItem item)
+        private BaseItem? GetFirstParentWithImageBelowUserRoot(BaseItem item)
         {
             if (item is null)
             {
@@ -1148,7 +1146,7 @@ namespace Emby.Dlna.Didl
         private ImageDownloadInfo GetImageInfo(BaseItem item, ImageType type)
         {
             var imageInfo = item.GetImageInfo(type, 0);
-            string tag = null;
+            string? tag = null;
 
             try
             {
@@ -1250,7 +1248,7 @@ namespace Emby.Dlna.Didl
         {
             internal Guid ItemId { get; set; }
 
-            internal string ImageTag { get; set; }
+            internal string? ImageTag { get; set; }
 
             internal ImageType Type { get; set; }
 
@@ -1260,9 +1258,9 @@ namespace Emby.Dlna.Didl
 
             internal bool IsDirectStream { get; set; }
 
-            internal string Format { get; set; }
+            internal required string Format { get; set; }
 
-            internal ItemImageInfo ItemImageInfo { get; set; }
+            internal required ItemImageInfo ItemImageInfo { get; set; }
         }
     }
 }

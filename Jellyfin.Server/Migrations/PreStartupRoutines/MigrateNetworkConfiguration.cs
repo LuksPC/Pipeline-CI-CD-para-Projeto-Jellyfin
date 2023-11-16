@@ -3,7 +3,7 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 using Emby.Server.Implementations;
-using Jellyfin.Networking.Configuration;
+using MediaBrowser.Common.Net;
 using Microsoft.Extensions.Logging;
 
 namespace Jellyfin.Server.Migrations.PreStartupRoutines;
@@ -43,10 +43,8 @@ public class MigrateNetworkConfiguration : IMigrationRoutine
 
         try
         {
-            using (var xmlReader = XmlReader.Create(path))
-            {
-                oldNetworkConfiguration = (OldNetworkConfiguration?)oldNetworkConfigSerializer.Deserialize(xmlReader);
-            }
+            using var xmlReader = XmlReader.Create(path);
+            oldNetworkConfiguration = (OldNetworkConfiguration?)oldNetworkConfigSerializer.Deserialize(xmlReader);
         }
         catch (InvalidOperationException ex)
         {
@@ -97,10 +95,8 @@ public class MigrateNetworkConfiguration : IMigrationRoutine
 
             var networkConfigSerializer = new XmlSerializer(typeof(NetworkConfiguration));
             var xmlWriterSettings = new XmlWriterSettings { Indent = true };
-            using (var xmlWriter = XmlWriter.Create(path, xmlWriterSettings))
-            {
-                networkConfigSerializer.Serialize(xmlWriter, networkConfiguration);
-            }
+            using var xmlWriter = XmlWriter.Create(path, xmlWriterSettings);
+            networkConfigSerializer.Serialize(xmlWriter, networkConfiguration);
         }
     }
 

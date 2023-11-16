@@ -59,7 +59,7 @@ namespace MediaBrowser.Providers.MediaInfo
             _mediaSourceManager = mediaSourceManager;
         }
 
-        [GeneratedRegex("I:\\s+(.*?)\\s+LUFS")]
+        [GeneratedRegex(@"I:\s+(.*?)\s+LUFS")]
         private static partial Regex LUFSRegex();
 
         /// <summary>
@@ -108,7 +108,6 @@ namespace MediaBrowser.Providers.MediaInfo
 
             if (libraryOptions.EnableLUFSScan)
             {
-                string output;
                 using (var process = new Process()
                 {
                     StartInfo = new ProcessStartInfo
@@ -131,7 +130,8 @@ namespace MediaBrowser.Providers.MediaInfo
                         throw;
                     }
 
-                    output = await process.StandardError.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
+                    using var reader = process.StandardError;
+                    var output = await reader.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
                     cancellationToken.ThrowIfCancellationRequested();
                     MatchCollection split = LUFSRegex().Matches(output);
 

@@ -121,7 +121,7 @@ namespace MediaBrowser.MediaEncoding.Encoder
             "yadif_videotoolbox"
         };
 
-        private static readonly IReadOnlyDictionary<int, string[]> _filterOptionsDict = new Dictionary<int, string[]>
+        private static readonly Dictionary<int, string[]> _filterOptionsDict = new Dictionary<int, string[]>
         {
             { 0, new string[] { "scale_cuda", "Output format (default \"same\")" } },
             { 1, new string[] { "tonemap_cuda", "GPU accelerated HDR to SDR tonemapping" } },
@@ -132,7 +132,7 @@ namespace MediaBrowser.MediaEncoding.Encoder
         };
 
         // These are the library versions that corresponds to our minimum ffmpeg version 4.x according to the version table below
-        private static readonly IReadOnlyDictionary<string, Version> _ffmpegMinimumLibraryVersions = new Dictionary<string, Version>
+        private static readonly Dictionary<string, Version> _ffmpegMinimumLibraryVersions = new Dictionary<string, Version>
         {
             { "libavutil", new Version(56, 14) },
             { "libavcodec", new Version(58, 18) },
@@ -197,7 +197,7 @@ namespace MediaBrowser.MediaEncoding.Encoder
 
         internal bool ValidateVersionInternal(string versionOutput)
         {
-            if (versionOutput.IndexOf("Libav developers", StringComparison.OrdinalIgnoreCase) != -1)
+            if (versionOutput.Contains("Libav developers", StringComparison.OrdinalIgnoreCase))
             {
                 _logger.LogError("FFmpeg validation: avconv instead of ffmpeg is not supported");
                 return false;
@@ -333,7 +333,7 @@ namespace MediaBrowser.MediaEncoding.Encoder
         /// </summary>
         /// <param name="output">The 'ffmpeg -version' output.</param>
         /// <returns>The library names and major.minor version numbers.</returns>
-        private static IReadOnlyDictionary<string, Version> GetFFmpegLibraryVersions(string output)
+        private static Dictionary<string, Version> GetFFmpegLibraryVersions(string output)
         {
             var map = new Dictionary<string, Version>();
 
@@ -499,8 +499,8 @@ namespace MediaBrowser.MediaEncoding.Encoder
 
             var required = codec == Codec.Encoder ? _requiredEncoders : _requiredDecoders;
 
-            var found = Regex
-                .Matches(output, @"^\s\S{6}\s(?<codec>[\w|-]+)\s+.+$", RegexOptions.Multiline)
+            var found = CodecRegex()
+                .Matches(output)
                 .Select(x => x.Groups["codec"].Value)
                 .Where(x => required.Contains(x));
 
@@ -527,8 +527,8 @@ namespace MediaBrowser.MediaEncoding.Encoder
                 return Enumerable.Empty<string>();
             }
 
-            var found = Regex
-                .Matches(output, @"^\s\S{3}\s(?<filter>[\w|-]+)\s+.+$", RegexOptions.Multiline)
+            var found = FilterRegex()
+                .Matches(output)
                 .Select(x => x.Groups["filter"].Value)
                 .Where(x => _requiredFilters.Contains(x));
 
@@ -537,9 +537,9 @@ namespace MediaBrowser.MediaEncoding.Encoder
             return found;
         }
 
-        private IDictionary<int, bool> GetFFmpegFiltersWithOption()
+        private Dictionary<int, bool> GetFFmpegFiltersWithOption()
         {
-            IDictionary<int, bool> dict = new Dictionary<int, bool>();
+            Dictionary<int, bool> dict = new Dictionary<int, bool>();
             for (int i = 0; i < _filterOptionsDict.Count; i++)
             {
                 if (_filterOptionsDict.TryGetValue(i, out var val) && val.Length == 2)
@@ -553,7 +553,8 @@ namespace MediaBrowser.MediaEncoding.Encoder
 
         private string GetProcessOutput(string path, string arguments, bool readStdErr, string? testKey)
         {
-            using (var process = new Process()
+            var redirectStandardIn = !string.IsNullOrEmpty(testKey);
+            using (var process = new Process
             {
                 StartInfo = new ProcessStartInfo(path, arguments)
                 {
@@ -561,7 +562,7 @@ namespace MediaBrowser.MediaEncoding.Encoder
                     UseShellExecute = false,
                     WindowStyle = ProcessWindowStyle.Hidden,
                     ErrorDialog = false,
-                    RedirectStandardInput = !string.IsNullOrEmpty(testKey),
+                    RedirectStandardInput = redirectStandardIn,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true
                 }
@@ -571,13 +572,21 @@ namespace MediaBrowser.MediaEncoding.Encoder
 
                 process.Start();
 
-                if (!string.IsNullOrEmpty(testKey))
+                if (redirectStandardIn)
                 {
-                    process.StandardInput.Write(testKey);
+                    using var writer = process.StandardInput;
+                    writer.Write(testKey);
                 }
 
-                return readStdErr ? process.StandardError.ReadToEnd() : process.StandardOutput.ReadToEnd();
+                using var reader = readStdErr ? process.StandardError : process.StandardOutput;
+                return reader.ReadToEnd();
             }
         }
+
+        [GeneratedRegex("^\\s\\S{6}\\s(?<codec>[\\w|-]+)\\s+.+$", RegexOptions.Multiline)]
+        private static partial Regex CodecRegex();
+
+        [GeneratedRegex("^\\s\\S{3}\\s(?<filter>[\\w|-]+)\\s+.+$", RegexOptions.Multiline)]
+        private static partial Regex FilterRegex();
     }
 }

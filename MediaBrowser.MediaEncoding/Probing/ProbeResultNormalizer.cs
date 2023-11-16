@@ -23,7 +23,7 @@ namespace MediaBrowser.MediaEncoding.Probing
     /// <summary>
     /// Class responsible for normalizing FFprobe output.
     /// </summary>
-    public class ProbeResultNormalizer
+    public partial class ProbeResultNormalizer
     {
         // When extracting subtitles, the maximum length to consider (to avoid invalid filenames)
         private const int MaxSubtitleDescriptionExtractionLength = 100;
@@ -31,8 +31,6 @@ namespace MediaBrowser.MediaEncoding.Probing
         private const string ArtistReplaceValue = " | ";
 
         private readonly char[] _nameDelimiters = { '/', '|', ';', '\\' };
-
-        private static readonly Regex _performerPattern = new(@"(?<name>.*) \((?<instrument>.*)\)");
 
         private readonly ILogger _logger;
         private readonly ILocalizationManager _localization;
@@ -79,6 +77,7 @@ namespace MediaBrowser.MediaEncoding.Probing
             "She/Her/Hers",
             "5/8erl in Ehr'n",
             "Smith/Kotzen",
+            "We;Na",
         };
 
         /// <summary>
@@ -616,11 +615,11 @@ namespace MediaBrowser.MediaEncoding.Probing
             {
                 codec = "dvbsub";
             }
-            else if ((codec ?? string.Empty).IndexOf("PGS", StringComparison.OrdinalIgnoreCase) != -1)
+            else if ((codec ?? string.Empty).Contains("PGS", StringComparison.OrdinalIgnoreCase))
             {
                 codec = "PGSSUB";
             }
-            else if ((codec ?? string.Empty).IndexOf("DVD", StringComparison.OrdinalIgnoreCase) != -1)
+            else if ((codec ?? string.Empty).Contains("DVD", StringComparison.OrdinalIgnoreCase))
             {
                 codec = "DVDSUB";
             }
@@ -765,9 +764,11 @@ namespace MediaBrowser.MediaEncoding.Probing
                     && !string.Equals(streamInfo.FieldOrder, "progressive", StringComparison.OrdinalIgnoreCase);
 
                 if (isAudio
-                    || string.Equals(stream.Codec, "mjpeg", StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(stream.Codec, "gif", StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(stream.Codec, "png", StringComparison.OrdinalIgnoreCase))
+                    && (string.Equals(stream.Codec, "bmp", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(stream.Codec, "gif", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(stream.Codec, "mjpeg", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(stream.Codec, "png", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(stream.Codec, "webp", StringComparison.OrdinalIgnoreCase)))
                 {
                     stream.Type = MediaStreamType.EmbeddedImage;
                 }
@@ -1184,7 +1185,7 @@ namespace MediaBrowser.MediaEncoding.Probing
             info.Size = string.IsNullOrEmpty(data.Format.Size) ? null : long.Parse(data.Format.Size, CultureInfo.InvariantCulture);
         }
 
-        private void SetAudioInfoFromTags(MediaInfo audio, IReadOnlyDictionary<string, string> tags)
+        private void SetAudioInfoFromTags(MediaInfo audio, Dictionary<string, string> tags)
         {
             var people = new List<BaseItemPerson>();
             if (tags.TryGetValue("composer", out var composer) && !string.IsNullOrWhiteSpace(composer))
@@ -1215,7 +1216,7 @@ namespace MediaBrowser.MediaEncoding.Probing
             {
                 foreach (var person in Split(performer, false))
                 {
-                    Match match = _performerPattern.Match(person);
+                    Match match = PerformerRegex().Match(person);
 
                     // If the performer doesn't have any instrument/role associated, it won't match. In that case, chances are it's simply a band name, so we skip it.
                     if (match.Success)
@@ -1341,7 +1342,7 @@ namespace MediaBrowser.MediaEncoding.Probing
         {
             // Only use the comma as a delimiter if there are no slashes or pipes.
             // We want to be careful not to split names that have commas in them
-            var delimiter = !allowCommaDelimiter || _nameDelimiters.Any(i => val.IndexOf(i, StringComparison.Ordinal) != -1) ?
+            var delimiter = !allowCommaDelimiter || _nameDelimiters.Any(i => val.Contains(i, StringComparison.Ordinal)) ?
                 _nameDelimiters :
                 new[] { ',' };
 
@@ -1654,5 +1655,8 @@ namespace MediaBrowser.MediaEncoding.Probing
 
             return TransportStreamTimestamp.Valid;
         }
+
+        [GeneratedRegex("(?<name>.*) \\((?<instrument>.*)\\)")]
+        private static partial Regex PerformerRegex();
     }
 }
