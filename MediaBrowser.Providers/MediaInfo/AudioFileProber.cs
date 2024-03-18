@@ -229,6 +229,7 @@ namespace MediaBrowser.Providers.MediaInfo
 
             audio.RunTimeTicks = mediaInfo.RunTimeTicks;
             audio.Size = mediaInfo.Size;
+            audio.PremiereDate = mediaInfo.PremiereDate;
 
             if (!audio.IsLocked)
             {
@@ -349,7 +350,7 @@ namespace MediaBrowser.Providers.MediaInfo
                     }
                 }
 
-                if (!audio.LockedFields.Contains(MetadataField.Name))
+                if (!audio.LockedFields.Contains(MetadataField.Name) && !string.IsNullOrEmpty(tags.Title))
                 {
                     audio.Name = options.ReplaceAllMetadata || string.IsNullOrEmpty(audio.Name) ? tags.Title.Trim() : audio.Name;
                 }
@@ -371,7 +372,11 @@ namespace MediaBrowser.Providers.MediaInfo
                 {
                     var year = Convert.ToInt32(tags.Year);
                     audio.ProductionYear = year;
-                    audio.PremiereDate = new DateTime(year, 01, 01);
+
+                    if (!audio.PremiereDate.HasValue)
+                    {
+                        audio.PremiereDate = new DateTime(year, 01, 01);
+                    }
                 }
 
                 if (!audio.LockedFields.Contains(MetadataField.Genres))

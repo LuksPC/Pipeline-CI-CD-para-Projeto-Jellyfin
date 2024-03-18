@@ -63,7 +63,9 @@ namespace MediaBrowser.Controller.Entities
             ".edl",
             ".bif",
             ".smi",
-            ".ttml"
+            ".ttml",
+            ".lrc",
+            ".elrc"
         };
 
         /// <summary>

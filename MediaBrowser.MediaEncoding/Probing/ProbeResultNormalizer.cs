@@ -80,6 +80,7 @@ namespace MediaBrowser.MediaEncoding.Probing
             "5/8erl in Ehr'n",
             "Smith/Kotzen",
             "We;Na",
+            "LSR/CITY",
         };
 
         /// <summary>
