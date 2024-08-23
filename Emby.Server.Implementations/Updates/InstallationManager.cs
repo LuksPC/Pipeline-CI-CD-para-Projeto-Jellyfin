@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Runtime.ConstrainedExecution;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading;
@@ -188,7 +189,7 @@ namespace Emby.Server.Implementations.Updates
                             }
 
                             // Remove versions with a maximum ABI greater then the current application version.
-                            if (Version.TryParse(version.MaximumAbi, out var maximumAbi) && _applicationHost.ApplicationVersion >= maximumAbi)
+                            if (Version.TryParse(version.MaximumAbi, out var maximumAbi) && _applicationHost.ApplicationVersion > maximumAbi)
                             {
                                 package.Versions.RemoveAt(i);
                                 continue;
