@@ -187,6 +187,13 @@ namespace Emby.Server.Implementations.Updates
                                 await _pluginManager.PopulateManifest(package, version.VersionNumber, plugin.Path, plugin.Manifest.Status).ConfigureAwait(false);
                             }
 
+                            // Remove versions with a maximum ABI greater then the current application version.
+                            if (Version.TryParse(version.MaximumAbi, out var maximumAbi) && _applicationHost.ApplicationVersion >= maximumAbi)
+                            {
+                                package.Versions.RemoveAt(i);
+                                continue;
+                            }
+
                             // Remove versions with a target ABI greater then the current application version.
                             if (Version.TryParse(version.TargetAbi, out var targetAbi) && _applicationHost.ApplicationVersion < targetAbi)
                             {
