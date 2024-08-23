@@ -272,7 +272,8 @@ namespace Emby.Server.Implementations.Updates
 
             var appVer = _applicationHost.ApplicationVersion;
             var availableVersions = package.Versions
-                .Where(x => string.IsNullOrEmpty(x.TargetAbi) || Version.Parse(x.TargetAbi) <= appVer);
+                .Where(x => string.IsNullOrEmpty(x.TargetAbi) || Version.Parse(x.TargetAbi) <= appVer)
+                .Where(x => string.IsNullOrEmpty(x.MaximumAbi) || Version.Parse(x.MaximumAbi) >= appVer);
 
             if (specificVersion is not null)
             {
