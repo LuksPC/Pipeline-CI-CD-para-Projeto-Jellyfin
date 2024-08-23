@@ -6,7 +6,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Runtime.ConstrainedExecution;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading;
@@ -120,6 +119,12 @@ namespace Emby.Server.Implementations.Updates
                         ver.RepositoryUrl = manifest;
 
                         if (!filterIncompatible)
+                        {
+                            continue;
+                        }
+
+                        // Only show plugins that are less than or equal to maximumAbi.
+                        if (Version.TryParse(ver.MaximumAbi, out var maximumAbi) && _applicationHost.ApplicationVersion <= maximumAbi)
                         {
                             continue;
                         }
