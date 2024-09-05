@@ -1,15 +1,13 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using Jellyfin.Api.Constants;
 using Jellyfin.Api.Helpers;
 using Jellyfin.Data.Dtos;
-using Jellyfin.Data.Entities.Security;
 using Jellyfin.Data.Queries;
 using MediaBrowser.Common.Api;
 using MediaBrowser.Controller.Devices;
 using MediaBrowser.Controller.Session;
-using MediaBrowser.Model.Devices;
+using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Querying;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -47,7 +45,7 @@ public class DevicesController : BaseJellyfinApiController
     /// <returns>An <see cref="OkResult"/> containing the list of devices.</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public ActionResult<QueryResult<DeviceInfo>> GetDevices([FromQuery] Guid? userId)
+    public ActionResult<QueryResult<DeviceInfoDto>> GetDevices([FromQuery] Guid? userId)
     {
         userId = RequestHelpers.GetUserId(User, userId);
         return _deviceManager.GetDevicesForUser(userId);
@@ -63,7 +61,7 @@ public class DevicesController : BaseJellyfinApiController
     [HttpGet("Info")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<DeviceInfo> GetDeviceInfo([FromQuery, Required] string id)
+    public ActionResult<DeviceInfoDto> GetDeviceInfo([FromQuery, Required] string id)
     {
         var deviceInfo = _deviceManager.GetDevice(id);
         if (deviceInfo is null)
@@ -80,19 +78,12 @@ public class DevicesController : BaseJellyfinApiController
     /// <param name="id">Device Id.</param>
     /// <response code="200">Device options retrieved.</response>
     /// <response code="404">Device not found.</response>
-    /// <returns>An <see cref="OkResult"/> containing the device info on success, or a <see cref="NotFoundResult"/> if the device could not be found.</returns>
+    /// <returns>An <see cref="OkResult"/> containing the device info on success.</returns>
     [HttpGet("Options")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<DeviceOptions> GetDeviceOptions([FromQuery, Required] string id)
+    public ActionResult<DeviceOptionsDto> GetDeviceOptions([FromQuery, Required] string id)
     {
-        var deviceInfo = _deviceManager.GetDeviceOptions(id);
-        if (deviceInfo is null)
-        {
-            return NotFound();
-        }
-
-        return deviceInfo;
+        return _deviceManager.GetDeviceOptions(id);
     }
 
     /// <summary>
