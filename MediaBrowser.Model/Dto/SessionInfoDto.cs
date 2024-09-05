@@ -26,7 +26,7 @@ public class SessionInfoDto
     /// Gets or sets the client capabilities.
     /// </summary>
     /// <value>The client capabilities.</value>
-    public ClientCapabilities? Capabilities { get; set; }
+    public ClientCapabilitiesDto? Capabilities { get; set; }
 
     /// <summary>
     /// Gets or sets the remote end point.

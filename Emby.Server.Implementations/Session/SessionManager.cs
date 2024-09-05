@@ -1082,7 +1082,7 @@ namespace Emby.Server.Implementations.Session
             {
                 PlayState = sessionInfo.PlayState,
                 AdditionalUsers = sessionInfo.AdditionalUsers,
-                Capabilities = sessionInfo.Capabilities,
+                Capabilities = GetClientCapabilitiesDto(sessionInfo.Capabilities),
                 RemoteEndPoint = sessionInfo.RemoteEndPoint,
                 PlayableMediaTypes = sessionInfo.PlayableMediaTypes,
                 Id = sessionInfo.Id,
@@ -1109,6 +1109,20 @@ namespace Emby.Server.Implementations.Session
                 ServerId = sessionInfo.ServerId,
                 UserPrimaryImageTag = sessionInfo.UserPrimaryImageTag,
                 SupportedCommands = sessionInfo.SupportedCommands
+            };
+        }
+
+        private ClientCapabilitiesDto GetClientCapabilitiesDto(ClientCapabilities capabilities)
+        {
+            return new ClientCapabilitiesDto
+            {
+                PlayableMediaTypes = capabilities.PlayableMediaTypes,
+                SupportedCommands = capabilities.SupportedCommands,
+                SupportsMediaControl = capabilities.SupportsMediaControl,
+                SupportsPersistentIdentifier = capabilities.SupportsPersistentIdentifier,
+                DeviceProfile = capabilities.DeviceProfile,
+                AppStoreUrl = capabilities.AppStoreUrl,
+                IconUrl = capabilities.IconUrl
             };
         }
 

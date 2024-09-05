@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Jellyfin.Api.Extensions;
 using Jellyfin.Api.Helpers;
 using Jellyfin.Api.ModelBinders;
-using Jellyfin.Api.Models.SessionDtos;
 using Jellyfin.Data.Enums;
 using MediaBrowser.Common.Api;
 using MediaBrowser.Controller.Library;
