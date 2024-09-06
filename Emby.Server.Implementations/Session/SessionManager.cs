@@ -1076,7 +1076,7 @@ namespace Emby.Server.Implementations.Session
             return session;
         }
 
-        private SessionInfoDto GetSessionInfoDto(SessionInfo sessionInfo)
+        private SessionInfoDto ToSessionInfoDto(SessionInfo sessionInfo)
         {
             return new SessionInfoDto
             {
@@ -1541,7 +1541,7 @@ namespace Emby.Server.Implementations.Session
             var returnResult = new AuthenticationResult
             {
                 User = _userManager.GetUserDto(user, request.RemoteEndPoint),
-                SessionInfo = GetSessionInfoDto(session),
+                SessionInfo = ToSessionInfoDto(session),
                 AccessToken = token,
                 ServerId = _appHost.SystemId
             };
@@ -1894,7 +1894,7 @@ namespace Emby.Server.Implementations.Session
                 result = result.Where(i => i.LastActivityDate >= minActiveDate);
             }
 
-            return result.Select(GetSessionInfoDto).ToList();
+            return result.Select(ToSessionInfoDto).ToList();
         }
 
         /// <inheritdoc />
