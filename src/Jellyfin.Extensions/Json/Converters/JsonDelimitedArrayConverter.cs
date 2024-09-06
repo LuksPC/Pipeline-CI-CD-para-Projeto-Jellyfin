@@ -42,11 +42,17 @@ namespace Jellyfin.Extensions.Json.Converters
                 var typedValues = new List<T>();
                 for (var i = 0; i < stringEntries.Length; i++)
                 {
-                    // Parse and drop all unconvertable inputs
-                    var parsedValue = _typeConverter.ConvertFromInvariantString(stringEntries[i].Trim());
-                    if (parsedValue is not null)
+                    try
                     {
-                        typedValues.Add((T)parsedValue);
+                        var parsedValue = _typeConverter.ConvertFromInvariantString(stringEntries[i].Trim());
+                        if (parsedValue is not null)
+                        {
+                            typedValues.Add((T)parsedValue);
+                        }
+                    }
+                    catch (FormatException)
+                    {
+                        // Ignore unconvertable inputs
                     }
                 }
 
