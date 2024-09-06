@@ -77,7 +77,6 @@ public class DevicesController : BaseJellyfinApiController
     /// </summary>
     /// <param name="id">Device Id.</param>
     /// <response code="200">Device options retrieved.</response>
-    /// <response code="404">Device not found.</response>
     /// <returns>An <see cref="OkResult"/> containing the device info on success.</returns>
     [HttpGet("Options")]
     [ProducesResponseType(StatusCodes.Status200OK)]
