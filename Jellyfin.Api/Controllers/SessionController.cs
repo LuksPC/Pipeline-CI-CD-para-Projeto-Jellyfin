@@ -63,7 +63,7 @@ public class SessionController : BaseJellyfinApiController
             activeWithinSeconds,
             controllableUserToCheck);
 
-        return Ok(result);
+        return Ok(result ?? []);
     }
 
     /// <summary>
