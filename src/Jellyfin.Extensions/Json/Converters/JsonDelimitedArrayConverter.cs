@@ -59,22 +59,27 @@ namespace Jellyfin.Extensions.Json.Converters
         /// <inheritdoc />
         public override void Write(Utf8JsonWriter writer, T[]? value, JsonSerializerOptions options)
         {
-            writer.WriteStartArray();
-            if (value is not null && value.Length > 0)
+            if (value is not null)
             {
-                var toWrite = value.Length - 1;
-                foreach (var it in value)
+                writer.WriteStartArray();
+                if (value.Length > 0)
                 {
-                    writer.WriteStringValue(it!.ToString());
-                    if (toWrite > 0)
+                    var toWrite = value.Length - 1;
+                    foreach (var it in value)
                     {
-                        writer.WriteStringValue(Delimiter.ToString());
-                        toWrite--;
+                        writer.WriteStringValue(it!.ToString());
+                        if (toWrite > 0)
+                        {
+                            writer.WriteStringValue(Delimiter.ToString());
+                            toWrite--;
+                        }
                     }
                 }
+
+                writer.WriteEndArray();
             }
 
-            writer.WriteEndArray();
+            writer.WriteNullValue();
         }
     }
 }
