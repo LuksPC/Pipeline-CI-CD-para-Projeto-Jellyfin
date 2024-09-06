@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -38,35 +40,18 @@ namespace Jellyfin.Extensions.Json.Converters
                     return [];
                 }
 
-                var parsedValues = new object[stringEntries.Length];
-                var convertedCount = 0;
+                var typedValues = new List<T>();
                 for (var i = 0; i < stringEntries.Length; i++)
                 {
-                    try
+                    // Parse and drop all unconvertable inputs
+                    var parsedValue = _typeConverter.ConvertFromInvariantString(stringEntries[i].Trim());
+                    if (parsedValue is not null)
                     {
-                        parsedValues[i] = _typeConverter.ConvertFromInvariantString(stringEntries[i].Trim()) ?? throw new FormatException();
-                        convertedCount++;
-                    }
-                    catch (FormatException)
-                    {
-                        // TODO log when upgraded to .Net6
-                        // https://github.com/dotnet/runtime/issues/42975
-                        // _logger.LogDebug(e, "Error converting value.");
+                        typedValues.Add((T)parsedValue);
                     }
                 }
 
-                var typedValues = new T[convertedCount];
-                var typedValueIndex = 0;
-                for (var i = 0; i < stringEntries.Length; i++)
-                {
-                    if (parsedValues[i] is not null)
-                    {
-                        typedValues.SetValue(parsedValues[i], typedValueIndex);
-                        typedValueIndex++;
-                    }
-                }
-
-                return typedValues;
+                return [.. typedValues];
             }
 
             return JsonSerializer.Deserialize<T[]>(ref reader, options);
