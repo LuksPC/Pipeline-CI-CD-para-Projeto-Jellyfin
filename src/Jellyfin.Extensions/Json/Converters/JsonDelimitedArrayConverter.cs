@@ -78,8 +78,10 @@ namespace Jellyfin.Extensions.Json.Converters
 
                 writer.WriteEndArray();
             }
-
-            writer.WriteNullValue();
+            else
+            {
+                writer.WriteNullValue();
+            }
         }
     }
 }
