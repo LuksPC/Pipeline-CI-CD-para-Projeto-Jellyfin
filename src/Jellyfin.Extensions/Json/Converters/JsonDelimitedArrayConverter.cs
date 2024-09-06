@@ -35,7 +35,7 @@ namespace Jellyfin.Extensions.Json.Converters
                 var stringEntries = reader.GetString()!.Split(Delimiter, StringSplitOptions.RemoveEmptyEntries);
                 if (stringEntries.Length == 0)
                 {
-                    return Array.Empty<T>();
+                    return [];
                 }
 
                 var parsedValues = new object[stringEntries.Length];
@@ -75,7 +75,22 @@ namespace Jellyfin.Extensions.Json.Converters
         /// <inheritdoc />
         public override void Write(Utf8JsonWriter writer, T[]? value, JsonSerializerOptions options)
         {
-            throw new NotImplementedException();
+            writer.WriteStartArray();
+            if (value is not null && value.Length > 0)
+            {
+                var toWrite = value.Length - 1;
+                foreach (var it in value)
+                {
+                    writer.WriteStringValue(it!.ToString());
+                    if (toWrite > 0)
+                    {
+                        writer.WriteStringValue(Delimiter.ToString());
+                        toWrite--;
+                    }
+                }
+            }
+
+            writer.WriteEndArray();
         }
     }
 }
