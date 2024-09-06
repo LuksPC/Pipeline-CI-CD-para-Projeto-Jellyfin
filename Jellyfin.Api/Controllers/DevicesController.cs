@@ -77,12 +77,20 @@ public class DevicesController : BaseJellyfinApiController
     /// </summary>
     /// <param name="id">Device Id.</param>
     /// <response code="200">Device options retrieved.</response>
-    /// <returns>An <see cref="OkResult"/> containing the device info on success.</returns>
+    /// <response code="404">Device not found.</response>
+    /// <returns>An <see cref="OkResult"/> containing the device info on success, or a <see cref="NotFoundResult"/> if the device could not be found.</returns>
     [HttpGet("Options")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult<DeviceOptionsDto> GetDeviceOptions([FromQuery, Required] string id)
     {
-        return _deviceManager.GetDeviceOptions(id);
+        var deviceInfo = _deviceManager.GetDeviceOptions(id);
+        if (deviceInfo is null)
+        {
+            return NotFound();
+        }
+
+        return deviceInfo;
     }
 
     /// <summary>

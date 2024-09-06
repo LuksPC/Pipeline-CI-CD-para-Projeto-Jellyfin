@@ -70,7 +70,7 @@ namespace Jellyfin.Server.Implementations.Devices
         }
 
         /// <inheritdoc />
-        public async Task UpdateDeviceOptions(string deviceId, string deviceName)
+        public async Task UpdateDeviceOptions(string deviceId, string? deviceName)
         {
             DeviceOptions? deviceOptions;
             var dbContext = await _dbProvider.CreateDbContextAsync().ConfigureAwait(false);
@@ -107,25 +107,27 @@ namespace Jellyfin.Server.Implementations.Devices
         }
 
         /// <inheritdoc />
-        public DeviceOptionsDto GetDeviceOptions(string deviceId)
+        public DeviceOptionsDto? GetDeviceOptions(string deviceId)
         {
             if (_deviceOptions.TryGetValue(deviceId, out var deviceOptions))
             {
                 return ToDeviceOptionsDto(deviceOptions);
             }
 
-            return new()
-            {
-                DeviceId = deviceId
-            };
+            return null;
         }
 
         /// <inheritdoc />
-        public ClientCapabilities GetCapabilities(string deviceId)
+        public ClientCapabilities GetCapabilities(string? deviceId)
         {
+            if (deviceId is null)
+            {
+                return new();
+            }
+
             return _capabilitiesMap.TryGetValue(deviceId, out ClientCapabilities? result)
                 ? result
-                : new ClientCapabilities();
+                : new();
         }
 
         /// <inheritdoc />

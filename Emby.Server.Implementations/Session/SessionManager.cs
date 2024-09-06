@@ -1,7 +1,5 @@
 #nullable disable
 
-#pragma warning disable CS1591
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -68,13 +66,29 @@ namespace Emby.Server.Implementations.Session
         private Timer _inactiveTimer;
 
         private DtoOptions _itemInfoDtoOptions;
-        private bool _disposed = false;
+        private bool _disposed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SessionManager"/> class.
+        /// </summary>
+        /// <param name="logger">Instance of <see cref="ILogger{SessionManager}"/> interface.</param>
+        /// <param name="eventManager">Instance of <see cref="IEventManager"/> interface.</param>
+        /// <param name="userDataManager">Instance of <see cref="IUserDataManager"/> interface.</param>
+        /// <param name="serverConfigurationManager">Instance of <see cref="IServerConfigurationManager"/> interface.</param>
+        /// <param name="libraryManager">Instance of <see cref="ILibraryManager"/> interface.</param>
+        /// <param name="userManager">Instance of <see cref="IUserManager"/> interface.</param>
+        /// <param name="musicManager">Instance of <see cref="IMusicManager"/> interface.</param>
+        /// <param name="dtoService">Instance of <see cref="IDtoService"/> interface.</param>
+        /// <param name="imageProcessor">Instance of <see cref="IImageProcessor"/> interface.</param>
+        /// <param name="appHost">Instance of <see cref="IServerApplicationHost"/> interface.</param>
+        /// <param name="deviceManager">Instance of <see cref="IDeviceManager"/> interface.</param>
+        /// <param name="mediaSourceManager">Instance of <see cref="IMediaSourceManager"/> interface.</param>
+        /// <param name="hostApplicationLifetime">Instance of <see cref="IHostApplicationLifetime"/> interface.</param>
         public SessionManager(
             ILogger<SessionManager> logger,
             IEventManager eventManager,
             IUserDataManager userDataManager,
-            IServerConfigurationManager config,
+            IServerConfigurationManager serverConfigurationManager,
             ILibraryManager libraryManager,
             IUserManager userManager,
             IMusicManager musicManager,
@@ -88,7 +102,7 @@ namespace Emby.Server.Implementations.Session
             _logger = logger;
             _eventManager = eventManager;
             _userDataManager = userDataManager;
-            _config = config;
+            _config = serverConfigurationManager;
             _libraryManager = libraryManager;
             _userManager = userManager;
             _musicManager = musicManager;
@@ -508,7 +522,10 @@ namespace Emby.Server.Implementations.Session
                 deviceName = "Network Device";
             }
 
-            var deviceOptions = _deviceManager.GetDeviceOptions(deviceId);
+            var deviceOptions = _deviceManager.GetDeviceOptions(deviceId) ?? new()
+            {
+                DeviceId = deviceId
+            };
             if (string.IsNullOrEmpty(deviceOptions.CustomName))
             {
                 sessionInfo.DeviceName = deviceName;

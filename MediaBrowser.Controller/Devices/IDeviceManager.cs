@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Threading.Tasks;
 using Jellyfin.Data.Dtos;
@@ -43,14 +41,14 @@ public interface IDeviceManager
     /// </summary>
     /// <param name="deviceId">The device id.</param>
     /// <returns>ClientCapabilities.</returns>
-    ClientCapabilities GetCapabilities(string deviceId);
+    ClientCapabilities GetCapabilities(string? deviceId);
 
     /// <summary>
     /// Gets the device information.
     /// </summary>
     /// <param name="id">The identifier.</param>
     /// <returns>DeviceInfoDto.</returns>
-    DeviceInfoDto GetDevice(string id);
+    DeviceInfoDto? GetDevice(string id);
 
     /// <summary>
     /// Gets devices based on the provided query.
@@ -101,14 +99,14 @@ public interface IDeviceManager
     /// <param name="deviceId">The device id.</param>
     /// <param name="deviceName">The device name.</param>
     /// <returns>A <see cref="Task"/> representing the update of the device options.</returns>
-    Task UpdateDeviceOptions(string deviceId, string deviceName);
+    Task UpdateDeviceOptions(string deviceId, string? deviceName);
 
     /// <summary>
     /// Gets the options of a device.
     /// </summary>
     /// <param name="deviceId">The device id.</param>
     /// <returns><see cref="DeviceOptions"/> of the device.</returns>
-    DeviceOptionsDto GetDeviceOptions(string deviceId);
+    DeviceOptionsDto? GetDeviceOptions(string deviceId);
 
     /// <summary>
     /// Gets the dto for client capabilites.
