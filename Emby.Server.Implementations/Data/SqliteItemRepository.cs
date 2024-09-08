@@ -727,7 +727,7 @@ namespace Emby.Server.Implementations.Data
                 saveItemStatement.TryBind("@ParentId", parentId);
             }
 
-            if (item.Genres.Length > 0)
+            if (item.Genres.Count > 0)
             {
                 saveItemStatement.TryBind("@Genres", string.Join('|', item.Genres));
             }
@@ -789,7 +789,7 @@ namespace Emby.Server.Implementations.Data
 
             saveItemStatement.TryBind("@IsInMixedFolder", item.IsInMixedFolder);
 
-            if (item.LockedFields.Length > 0)
+            if (item.LockedFields.Count > 0)
             {
                 saveItemStatement.TryBind("@LockedFields", string.Join('|', item.LockedFields));
             }
@@ -798,7 +798,7 @@ namespace Emby.Server.Implementations.Data
                 saveItemStatement.TryBindNull("@LockedFields");
             }
 
-            if (item.Studios.Length > 0)
+            if (item.Studios.Count > 0)
             {
                 saveItemStatement.TryBind("@Studios", string.Join('|', item.Studios));
             }
@@ -825,7 +825,7 @@ namespace Emby.Server.Implementations.Data
                 saveItemStatement.TryBindNull("@ExternalServiceId");
             }
 
-            if (item.Tags.Length > 0)
+            if (item.Tags.Count > 0)
             {
                 saveItemStatement.TryBind("@Tags", string.Join('|', item.Tags));
             }
@@ -944,7 +944,7 @@ namespace Emby.Server.Implementations.Data
             saveItemStatement.TryBind("@ProviderIds", SerializeProviderIds(item.ProviderIds));
             saveItemStatement.TryBind("@Images", SerializeImages(item.ImageInfos));
 
-            if (item.ProductionLocations.Length > 0)
+            if (item.ProductionLocations.Count > 0)
             {
                 saveItemStatement.TryBind("@ProductionLocations", string.Join('|', item.ProductionLocations));
             }
@@ -953,7 +953,7 @@ namespace Emby.Server.Implementations.Data
                 saveItemStatement.TryBindNull("@ProductionLocations");
             }
 
-            if (item.ExtraIds.Length > 0)
+            if (item.ExtraIds.Count > 0)
             {
                 saveItemStatement.TryBind("@ExtraIds", string.Join('|', item.ExtraIds));
             }
@@ -1057,9 +1057,9 @@ namespace Emby.Server.Implementations.Data
             }
         }
 
-        internal string SerializeImages(ItemImageInfo[] images)
+        internal string SerializeImages(IReadOnlyList<ItemImageInfo> images)
         {
-            if (images.Length == 0)
+            if (images.Count == 0)
             {
                 return null;
             }
@@ -1780,7 +1780,7 @@ namespace Emby.Server.Implementations.Data
 
             if (query.DtoOptions.EnableImages)
             {
-                if (item.ImageInfos.Length == 0 && reader.TryGetString(index, out var imageInfos))
+                if (item.ImageInfos.Count == 0 && reader.TryGetString(index, out var imageInfos))
                 {
                     item.ImageInfos = DeserializeImages(imageInfos);
                 }
