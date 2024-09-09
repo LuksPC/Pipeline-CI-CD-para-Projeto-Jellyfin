@@ -57,6 +57,6 @@ public class SubtitleProfile
             subLanguage = "und";
         }
 
-        return Language.ContainsContainer(subLanguage);
+        return ContainerHelper.ContainsContainer(Language, subLanguage);
     }
 }

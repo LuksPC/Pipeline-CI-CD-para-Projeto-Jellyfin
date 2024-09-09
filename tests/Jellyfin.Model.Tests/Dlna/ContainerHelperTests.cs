@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Jellyfin.Model.Tests.Dlna;
 
-public class ContainerProfileTests
+public class ContainerHelperTests
 {
     private readonly ContainerProfile _emptyContainerProfile = new ContainerProfile();
 
@@ -15,7 +15,7 @@ public class ContainerProfileTests
     [InlineData("mp4")]
     public void ContainsContainer_EmptyContainerProfile_ReturnsTrue(string? containers)
     {
-        Assert.True(_emptyContainerProfile.ContainsContainer(containers));
+        Assert.True(ContainerHelper.ContainsContainer(_emptyContainerProfile, containers));
     }
 
     [InlineData("mp3,mpeg", "mp3")]
@@ -26,7 +26,7 @@ public class ContainerProfileTests
     [Theory]
     public void ContainsContainer_InList_ReturnsTrue(string container, string extension)
     {
-        Assert.True(container.ContainsContainer(extension));
+        Assert.True(ContainerHelper.ContainsContainer(container, extension));
     }
 
     [InlineData("mp3,mpeg", "avi")]
@@ -37,7 +37,7 @@ public class ContainerProfileTests
     [Theory]
     public void ContainsContainer_NotInList_ReturnsFalse(string container, string? extension)
     {
-        Assert.False(container.ContainsContainer(extension));
+        Assert.False(ContainerHelper.ContainsContainer(container, extension));
     }
 
     [InlineData("mp3,mpeg", "mp3")]
@@ -48,6 +48,6 @@ public class ContainerProfileTests
     [Theory]
     public void ContainsContainer_InList_ReturnsTrue_SpanVersion(string container, string extension)
     {
-        Assert.True(container.ContainsContainer(extension.AsSpan()));
+        Assert.True(ContainerHelper.ContainsContainer(container, extension.AsSpan()));
     }
 }

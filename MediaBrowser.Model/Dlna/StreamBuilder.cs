@@ -389,7 +389,7 @@ namespace MediaBrowser.Model.Dlna
         /// <returns>The normalized input container.</returns>
         public static string NormalizeMediaSourceFormatIntoSingleContainer(string inputContainer, DeviceProfile? profile, DlnaProfileType type, DirectPlayProfile? playProfile = null)
         {
-            if (!inputContainer.Contains(',', StringComparison.OrdinalIgnoreCase) || profile == null)
+            if (!inputContainer.Contains(',', StringComparison.OrdinalIgnoreCase) || profile is null)
             {
                 return inputContainer;
             }
@@ -838,9 +838,7 @@ namespace MediaBrowser.Model.Dlna
 
                     if (options.AllowVideoStreamCopy)
                     {
-                        var videoCodecs = ContainerProfile.SplitValue(transcodingProfile.VideoCodec);
-
-                        if (transcodingProfile.VideoCodec.ContainsContainer(item.VideoStream?.Codec))
+                        if (ContainerHelper.ContainsContainer(transcodingProfile.VideoCodec, videoCodec))
                         {
                             var appliedVideoConditions = options.Profile.CodecProfiles
                                 .Where(i => i.Type == CodecType.Video &&
@@ -857,9 +855,7 @@ namespace MediaBrowser.Model.Dlna
 
                     if (options.AllowAudioStreamCopy)
                     {
-                        var audioCodecs = ContainerProfile.SplitValue(transcodingProfile.AudioCodec);
-
-                        if (transcodingProfile.AudioCodec.ContainsContainer(item.AudioStream?.Codec))
+                        if (ContainerHelper.ContainsContainer(transcodingProfile.AudioCodec, audioCodec))
                         {
                             var appliedVideoConditions = options.Profile.CodecProfiles
                                 .Where(i => i.Type == CodecType.VideoAudio &&
@@ -941,7 +937,7 @@ namespace MediaBrowser.Model.Dlna
 
             // Prefer matching audio codecs, could do better here
             var audioCodecs = new List<string>();
-            if (audioStream is not null && audioCodec.ContainsContainer(audioStream.Codec))
+            if (audioStream is not null && ContainerHelper.ContainsContainer(audioCodec, audioStream.Codec))
             {
                 audioCodecs.Add(audioStream.Codec);
             }
@@ -1504,7 +1500,7 @@ namespace MediaBrowser.Model.Dlna
                         continue;
                     }
 
-                    if (!profile.Container.ContainsContainer(outputContainer))
+                    if (!ContainerHelper.ContainsContainer(profile.Container, outputContainer))
                     {
                         continue;
                     }
@@ -1533,7 +1529,7 @@ namespace MediaBrowser.Model.Dlna
                         continue;
                     }
 
-                    if (!profile.Container.ContainsContainer(outputContainer))
+                    if (!ContainerHelper.ContainsContainer(profile.Container, outputContainer))
                     {
                         continue;
                     }
@@ -1564,12 +1560,12 @@ namespace MediaBrowser.Model.Dlna
         {
             if (!string.IsNullOrEmpty(transcodingContainer))
             {
-                if (transcodingContainer.ContainsContainer("ts,mpegts,mp4"))
+                if (ContainerHelper.ContainsContainer(transcodingContainer, "ts,mpegts,mp4"))
                 {
                     return false;
                 }
 
-                if (transcodingContainer.ContainsContainer("mkv,matroska"))
+                if (ContainerHelper.ContainsContainer(transcodingContainer, "mkv,matroska"))
                 {
                     return true;
                 }

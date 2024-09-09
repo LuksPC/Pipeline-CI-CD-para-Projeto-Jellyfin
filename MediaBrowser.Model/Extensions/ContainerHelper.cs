@@ -4,9 +4,9 @@ using Jellyfin.Extensions;
 namespace MediaBrowser.Model.Extensions;
 
 /// <summary>
-/// Defines the <see cref="ContainerExtensions"/> class.
+/// Defines the <see cref="ContainerHelper"/> class.
 /// </summary>
-public static class ContainerExtensions
+public static class ContainerHelper
 {
     /// <summary>
     /// Compares two containers, returning true if an item in <paramref name="inputContainer"/> exists
@@ -16,7 +16,7 @@ public static class ContainerExtensions
     /// If the parameter begins with the <c>-</c> character, the operation is reversed.</param>
     /// <param name="inputContainer">The comma-delimited string being matched.</param>
     /// <returns>The result of the operation.</returns>
-    public static bool ContainsContainer(this string? profileContainers, string? inputContainer)
+    public static bool ContainsContainer(string? profileContainers, string? inputContainer)
     {
         var isNegativeList = string.IsNullOrEmpty(inputContainer);
         if (profileContainers != null && profileContainers.StartsWith('-'))
@@ -36,7 +36,7 @@ public static class ContainerExtensions
     /// If the parameter begins with the <c>-</c> character, the operation is reversed.</param>
     /// <param name="inputContainer">The comma-delimited string being matched.</param>
     /// <returns>The result of the operation.</returns>
-    public static bool ContainsContainer(this string? profileContainers, ReadOnlySpan<char> inputContainer)
+    public static bool ContainsContainer(string? profileContainers, ReadOnlySpan<char> inputContainer)
     {
         var isNegativeList = inputContainer.IsEmpty;
         if (profileContainers != null && profileContainers.StartsWith('-'))
@@ -56,7 +56,7 @@ public static class ContainerExtensions
     /// <param name="isNegativeList">The boolean result to return if a match is not found.</param>
     /// <param name="inputContainer">The comma-delimited string being matched.</param>
     /// <returns>The result of the operation.</returns>
-    public static bool ContainsContainer(this string? profileContainers, bool isNegativeList, string? inputContainer)
+    public static bool ContainsContainer(string? profileContainers, bool isNegativeList, string? inputContainer)
     {
         if (string.IsNullOrEmpty(inputContainer))
         {
@@ -74,7 +74,7 @@ public static class ContainerExtensions
     /// <param name="isNegativeList">The boolean result to return if a match is not found.</param>
     /// <param name="inputContainer">The comma-delimited string being matched.</param>
     /// <returns>The result of the operation.</returns>
-    public static bool ContainsContainer(this string? profileContainers, bool isNegativeList, ReadOnlySpan<char> inputContainer)
+    public static bool ContainsContainer(string? profileContainers, bool isNegativeList, ReadOnlySpan<char> inputContainer)
     {
         if (string.IsNullOrEmpty(profileContainers))
         {

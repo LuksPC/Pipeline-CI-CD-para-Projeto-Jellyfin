@@ -63,7 +63,7 @@ public class CodecProfile
     public bool ContainsAnyCodec(string[] codecs, string? container, bool useSubContainer = false)
     {
         var containerToCheck = useSubContainer && string.Equals(Container, "hls", StringComparison.OrdinalIgnoreCase) ? SubContainer : Container;
-        return containerToCheck.ContainsContainer(container) && codecs.Any(c => Codec.ContainsContainer(false, c));
+        return ContainerHelper.ContainsContainer(containerToCheck, container) && codecs.Any(c => ContainerHelper.ContainsContainer(Codec, false, c));
     }
 
     /// <summary>
@@ -76,7 +76,7 @@ public class CodecProfile
     public bool ContainsAnyCodec(string? codec, string? container, bool useSubContainer = false)
     {
         var containerToCheck = useSubContainer && string.Equals(Container, "hls", StringComparison.OrdinalIgnoreCase) ? SubContainer : Container;
-        return containerToCheck.ContainsContainer(container) && Codec.ContainsContainer(false, codec);
+        return ContainerHelper.ContainsContainer(containerToCheck, container) && ContainerHelper.ContainsContainer(Container, false, codec);
     }
 
     /// <summary>
@@ -89,6 +89,6 @@ public class CodecProfile
     public bool ContainsAnyCodec(ReadOnlySpan<char> codec, string? container, bool useSubContainer = false)
     {
         var containerToCheck = useSubContainer && string.Equals(Container, "hls", StringComparison.OrdinalIgnoreCase) ? SubContainer : Container;
-        return containerToCheck.ContainsContainer(false, container) && containerToCheck.ContainsContainer(false, codec);
+        return ContainerHelper.ContainsContainer(containerToCheck, false, container) && ContainerHelper.ContainsContainer(containerToCheck, false, codec);
     }
 }

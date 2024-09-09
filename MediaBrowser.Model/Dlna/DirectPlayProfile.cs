@@ -39,7 +39,7 @@ public class DirectPlayProfile
     /// <returns>True if supported.</returns>
     public bool SupportsContainer(string? container)
     {
-        return Container.ContainsContainer(container);
+        return ContainerHelper.ContainsContainer(Container, container);
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ public class DirectPlayProfile
     /// <returns>True if supported.</returns>
     public bool SupportsVideoCodec(string? codec)
     {
-        return Type == DlnaProfileType.Video && VideoCodec.ContainsContainer(codec);
+        return Type == DlnaProfileType.Video && ContainerHelper.ContainsContainer(VideoCodec, codec);
     }
 
     /// <summary>
@@ -60,6 +60,6 @@ public class DirectPlayProfile
     public bool SupportsAudioCodec(string? codec)
     {
         // Video profiles can have audio codec restrictions too, therefore incude Video as valid type.
-        return (Type == DlnaProfileType.Audio || Type == DlnaProfileType.Video) && AudioCodec.ContainsContainer(codec);
+        return (Type == DlnaProfileType.Audio || Type == DlnaProfileType.Video) && ContainerHelper.ContainsContainer(AudioCodec, codec);
     }
 }

@@ -362,7 +362,7 @@ namespace Jellyfin.Model.Tests
             if (playMethod == PlayMethod.DirectPlay)
             {
                 // Check expected container
-                var containers = mediaSource.Container.Split(",");
+                var containers = mediaSource.Container.Split(',');
                 Assert.Contains(uri.Extension, containers);
                 // TODO: Test transcode too
 
