@@ -1284,7 +1284,7 @@ namespace MediaBrowser.Model.Dlna
                 profile,
                 "VideoCodecProfile",
                 profile.ContainerProfiles
-                    .Where(containerProfile => containerProfile.Type == DlnaProfileType.Video && containerProfile.ContainsContainer(container))
+                    .Where(containerProfile => containerProfile.Type == DlnaProfileType.Video && ContainerHelper.ContainsContainer(containerProfile, container))
                     .SelectMany(containerProfile => checkVideoConditions(containerProfile.Conditions)));
 
             // Check video conditions

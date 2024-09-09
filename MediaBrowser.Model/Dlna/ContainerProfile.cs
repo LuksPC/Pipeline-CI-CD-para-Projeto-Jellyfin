@@ -44,6 +44,6 @@ public class ContainerProfile
     public bool ContainsContainer(ReadOnlySpan<char> container, bool useSubContainer = false)
     {
         var containerToCheck = useSubContainer && string.Equals(Container, "hls", StringComparison.OrdinalIgnoreCase) ? SubContainer : Container;
-        return containerToCheck.ContainsContainer(container);
+        return ContainerHelper.ContainsContainer(containerToCheck, container);
     }
 }
