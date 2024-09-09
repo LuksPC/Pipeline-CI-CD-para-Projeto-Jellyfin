@@ -97,4 +97,14 @@ public static class ContainerHelper
 
         return isNegativeList;
     }
+
+    /// <summary>
+    /// Splits and input string.
+    /// </summary>
+    /// <param name="input">The input string.</param>
+    /// <returns>The result of the operation.</returns>
+    public static string[] Split(string? input)
+    {
+        return input?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? [];
+    }
 }

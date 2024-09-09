@@ -395,7 +395,7 @@ namespace MediaBrowser.Model.Dlna
             }
 
             var formats = inputContainer.SpanSplit(',');
-            var playProfiles = playProfile is null ? profile.DirectPlayProfiles : new[] { playProfile };
+            var playProfiles = playProfile is null ? profile.DirectPlayProfiles : [playProfile];
             foreach (var format in formats)
             {
                 foreach (var directPlayProfile in playProfiles)
@@ -624,7 +624,7 @@ namespace MediaBrowser.Model.Dlna
             playlistItem.SubProtocol = protocol;
 
             playlistItem.VideoCodecs = [item.VideoStream.Codec];
-            playlistItem.AudioCodecs = directPlayProfile?.AudioCodec?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+            playlistItem.AudioCodecs = ContainerHelper.Split(directPlayProfile?.AudioCodec);
         }
 
         private StreamInfo BuildVideoItem(MediaSourceInfo item, MediaOptions options)
@@ -899,14 +899,15 @@ namespace MediaBrowser.Model.Dlna
         {
             // Prefer matching video codecs
             List<string> videoCodecs = [];
-            if (videoCodec is not null)
+            if (audioCodec is not null)
             {
-                var splitStrings = videoCodec.Split(',');
-                videoCodecs.AddRange(splitStrings);
+                videoCodecs.AddRange(ContainerHelper.Split(videoCodec));
             }
-            else if (videoStream is not null)
+
+            if (videoCodecs.Count == 0 && videoStream is not null)
             {
-                videoCodecs.Add(videoStream.Codec!);
+                // Add the original codec if no codec is specified
+                videoCodecs.Add(videoStream.Codec);
             }
 
             // Enforce HLS video codec restrictions
@@ -936,15 +937,16 @@ namespace MediaBrowser.Model.Dlna
             }
 
             // Prefer matching audio codecs, could do better here
-            var audioCodecs = new List<string>();
-            if (audioStream is not null && ContainerHelper.ContainsContainer(audioCodec, audioStream.Codec))
-            {
-                audioCodecs.Add(audioStream.Codec);
-            }
-
+            List<string> audioCodecs = [];
             if (audioCodec is not null)
             {
-                audioCodecs.AddRange(audioCodec.Split(','));
+                audioCodecs.AddRange(ContainerHelper.Split(audioCodec));
+            }
+
+            if (audioCodecs.Count == 0 && audioStream is not null)
+            {
+                // Add the original codec if no codec is specified
+                audioCodecs.Add(audioStream.Codec);
             }
 
             // Enforce HLS audio codec restrictions
@@ -1019,13 +1021,13 @@ namespace MediaBrowser.Model.Dlna
 
             var appliedVideoConditions = options.Profile.CodecProfiles
                 .Where(i => i.Type == CodecType.Video &&
-                    i.ContainsAnyCodec([.. videoCodecs], container, useSubContainer) &&
+                    i.ContainsAnyCodec(playlistItem.VideoCodecs, container, useSubContainer) &&
                     i.ApplyConditions.All(applyCondition => ConditionProcessor.IsVideoConditionSatisfied(applyCondition, width, height, bitDepth, videoBitrate, videoProfile, videoRangeType, videoLevel, videoFramerate, packetLength, timestamp, isAnamorphic, isInterlaced, refFrames, numVideoStreams, numAudioStreams, videoCodecTag, isAvc)))
                 // Reverse codec profiles for backward compatibility - first codec profile has higher priority
                 .Reverse();
             foreach (var condition in appliedVideoConditions)
             {
-                foreach (var transcodingVideoCodec in videoCodecs)
+                foreach (var transcodingVideoCodec in playlistItem.VideoCodecs)
                 {
                     if (condition.ContainsAnyCodec(transcodingVideoCodec, container, useSubContainer))
                     {
@@ -1050,23 +1052,19 @@ namespace MediaBrowser.Model.Dlna
 
             var appliedAudioConditions = options.Profile.CodecProfiles
                 .Where(i => i.Type == CodecType.VideoAudio &&
-                    i.ContainsAnyCodec([.. audioCodecs], container) &&
+                    i.ContainsAnyCodec(playlistItem.AudioCodecs, container) &&
                     i.ApplyConditions.All(applyCondition => ConditionProcessor.IsVideoAudioConditionSatisfied(applyCondition, audioChannels, inputAudioBitrate, inputAudioSampleRate, inputAudioBitDepth, audioProfile, isSecondaryAudio)))
                 // Reverse codec profiles for backward compatibility - first codec profile has higher priority
                 .Reverse();
 
-            var playlistAudioCodecs = playlistItem.AudioCodecs;
-            if (playlistAudioCodecs is not null)
+            foreach (var codecProfile in appliedAudioConditions)
             {
-                foreach (var codecProfile in appliedAudioConditions)
+                foreach (var transcodingAudioCodec in playlistItem.AudioCodecs)
                 {
-                    foreach (var transcodingAudioCodec in playlistAudioCodecs)
+                    if (codecProfile.ContainsAnyCodec(transcodingAudioCodec, container))
                     {
-                        if (codecProfile.ContainsAnyCodec(transcodingAudioCodec, container))
-                        {
-                            ApplyTranscodingConditions(playlistItem, codecProfile.Conditions, transcodingAudioCodec.ToString(), true, true);
-                            break;
-                        }
+                        ApplyTranscodingConditions(playlistItem, codecProfile.Conditions, transcodingAudioCodec.ToString(), true, true);
+                        break;
                     }
                 }
             }
