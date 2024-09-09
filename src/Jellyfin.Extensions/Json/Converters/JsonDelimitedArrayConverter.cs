@@ -77,7 +77,7 @@ namespace Jellyfin.Extensions.Json.Converters
                         var wrote = false;
                         if (it is not null)
                         {
-                            writer.WriteStringValue(it!.ToString());
+                            writer.WriteStringValue(it.ToString());
                             wrote = true;
                         }
 
