@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -73,10 +74,20 @@ namespace Jellyfin.Extensions.Json.Converters
                     var toWrite = value.Length - 1;
                     foreach (var it in value)
                     {
-                        writer.WriteStringValue(it!.ToString());
+                        var wrote = false;
+                        if (it is not null)
+                        {
+                            writer.WriteStringValue(it!.ToString());
+                            wrote = true;
+                        }
+
                         if (toWrite > 0)
                         {
-                            writer.WriteStringValue(Delimiter.ToString());
+                            if (wrote)
+                            {
+                                writer.WriteStringValue(Delimiter.ToString());
+                            }
+
                             toWrite--;
                         }
                     }
