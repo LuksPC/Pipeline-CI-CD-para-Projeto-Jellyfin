@@ -15,7 +15,7 @@ public class ContainerHelperTests
     [InlineData("mp4")]
     public void ContainsContainer_EmptyContainerProfile_ReturnsTrue(string? containers)
     {
-        Assert.True(ContainerHelper.ContainsContainer(_emptyContainerProfile, containers));
+        Assert.True(_emptyContainerProfile.ContainsContainer(containers));
     }
 
     [InlineData("mp3,mpeg", "mp3")]
