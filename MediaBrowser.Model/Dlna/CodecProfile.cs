@@ -76,7 +76,7 @@ public class CodecProfile
     public bool ContainsAnyCodec(string? codec, string? container, bool useSubContainer = false)
     {
         var containerToCheck = useSubContainer && string.Equals(Container, "hls", StringComparison.OrdinalIgnoreCase) ? SubContainer : Container;
-        return ContainerHelper.ContainsContainer(containerToCheck, container) && ContainerHelper.ContainsContainer(Container, false, codec);
+        return ContainerHelper.ContainsContainer(containerToCheck, container) && ContainerHelper.ContainsContainer(container, false, codec);
     }
 
     /// <summary>
