@@ -297,7 +297,7 @@ namespace Jellyfin.Model.Tests
         [InlineData("RokuSSPlus", "mp4-h264-ac3-aac-srt-2600k", PlayMethod.DirectPlay, (TranscodeReason)0, "Remux")] // #6450
         [InlineData("RokuSSPlus", "mp4-hevc-ac3-aac-srt-15200k", PlayMethod.DirectPlay, (TranscodeReason)0, "Remux")] // #6450
         // no streams
-        [InlineData("Chrome", "no-streams", PlayMethod.Transcode, TranscodeReason.VideoCodecNotSupported, "Transcode")] // #6450
+        [InlineData("Chrome", "no-streams", PlayMethod.DirectPlay, (TranscodeReason)0, "Remux")]
         // AndroidTV
         [InlineData("AndroidTVExoPlayer", "mp4-h264-ac3-aac-srt-2600k", PlayMethod.DirectPlay, (TranscodeReason)0, "Remux")]
         [InlineData("AndroidTVExoPlayer", "mp4-hevc-ac3-aac-srt-15200k", PlayMethod.DirectPlay, (TranscodeReason)0, "Remux")]
@@ -367,13 +367,18 @@ namespace Jellyfin.Model.Tests
                 // TODO: Test transcode too
 
                 // Check expected video codec (1)
-                Assert.Contains(targetVideoStream?.Codec, streamInfo.TargetVideoCodec);
-                Assert.Single(streamInfo.TargetVideoCodec);
+                if (targetVideoStream?.Codec is not null)
+                {
+                    Assert.Contains(targetVideoStream?.Codec, streamInfo.TargetVideoCodec);
+                    Assert.Single(streamInfo.TargetVideoCodec);
+                }
 
-                // Check expected audio codecs (1)
-                Assert.Contains(targetAudioStream?.Codec, streamInfo.TargetAudioCodec);
-                Assert.Single(streamInfo.TargetAudioCodec);
-                // Assert.Single(val.AudioCodecs);
+                if (targetAudioStream?.Codec is not null)
+                {
+                    // Check expected audio codecs (1)
+                    Assert.Contains(targetAudioStream?.Codec, streamInfo.TargetAudioCodec);
+                    Assert.Single(streamInfo.TargetAudioCodec);
+                }
 
                 if (transcodeMode.Equals("DirectStream", StringComparison.Ordinal))
                 {

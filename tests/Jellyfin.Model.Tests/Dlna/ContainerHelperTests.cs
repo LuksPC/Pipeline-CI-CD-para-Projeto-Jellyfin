@@ -25,7 +25,7 @@ public class ContainerHelperTests
     [InlineData("-mp3,mpeg", "avi")]
     [InlineData("-mp3,mpeg,avi", "mp4,jpg")]
     [Theory]
-    public void ContainsContainer_InList_ReturnsTrue(string container, string extension)
+    public void ContainsContainer_InList_ReturnsTrue(string container, string? extension)
     {
         Assert.True(ContainerHelper.ContainsContainer(container, extension));
     }
@@ -47,7 +47,7 @@ public class ContainerHelperTests
     [InlineData("-mp3,mpeg", "avi")]
     [InlineData("-mp3,mpeg,avi", "mp4,jpg")]
     [Theory]
-    public void ContainsContainer_InList_ReturnsTrue_SpanVersion(string container, string extension)
+    public void ContainsContainer_InList_ReturnsTrue_SpanVersion(string container, string? extension)
     {
         Assert.True(ContainerHelper.ContainsContainer(container, extension.AsSpan()));
     }
