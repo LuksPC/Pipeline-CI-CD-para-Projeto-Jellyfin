@@ -721,7 +721,7 @@ namespace MediaBrowser.Model.Dlna
                         playlistItem.AudioStreamIndex = audioStream?.Index;
                         if (audioStream is not null)
                         {
-                            playlistItem.AudioCodecs = directPlayProfile?.AudioCodec?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+                            playlistItem.AudioCodecs = ContainerHelper.Split(directPlayProfile?.AudioCodec);
                         }
 
                         SetStreamInfoOptionsFromDirectPlayProfile(options, item, playlistItem, directPlayProfile);
@@ -898,11 +898,7 @@ namespace MediaBrowser.Model.Dlna
             string? audioCodec)
         {
             // Prefer matching video codecs
-            List<string> videoCodecs = [];
-            if (audioCodec is not null)
-            {
-                videoCodecs.AddRange(ContainerHelper.Split(videoCodec));
-            }
+            List<string> videoCodecs = [.. ContainerHelper.Split(videoCodec)];
 
             if (videoCodecs.Count == 0 && videoStream is not null)
             {
@@ -937,11 +933,7 @@ namespace MediaBrowser.Model.Dlna
             }
 
             // Prefer matching audio codecs, could do better here
-            List<string> audioCodecs = [];
-            if (audioCodec is not null)
-            {
-                audioCodecs.AddRange(ContainerHelper.Split(audioCodec));
-            }
+            List<string> audioCodecs = [.. ContainerHelper.Split(audioCodec)];
 
             if (audioCodecs.Count == 0 && audioStream is not null)
             {
@@ -962,7 +954,7 @@ namespace MediaBrowser.Model.Dlna
                 }
             }
 
-            var audioStreamWithSupportedCodec = candidateAudioStreams.Where(stream => playlistItem.AudioCodecs.Contains(stream.Codec, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+            var audioStreamWithSupportedCodec = candidateAudioStreams.Where(stream => ContainerHelper.ContainsContainer(audioCodecs, false, stream.Codec)).FirstOrDefault();
 
             var directAudioStream = audioStreamWithSupportedCodec?.Channels is not null && audioStreamWithSupportedCodec.Channels.Value <= (playlistItem.TranscodingMaxAudioChannels ?? int.MaxValue) ? audioStreamWithSupportedCodec : null;
 
