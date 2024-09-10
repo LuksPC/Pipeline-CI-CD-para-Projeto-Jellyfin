@@ -20,6 +20,7 @@ public class ContainerHelperTests
 
     [InlineData("mp3,mpeg", "mp3")]
     [InlineData("mp3,mpeg", "")]
+    [InlineData("mp3,mpeg", null)]
     [InlineData("mp3,mpeg,avi", "mp3,avi")]
     [InlineData("-mp3,mpeg", "avi")]
     [InlineData("-mp3,mpeg,avi", "mp4,jpg")]
@@ -30,7 +31,6 @@ public class ContainerHelperTests
     }
 
     [InlineData("mp3,mpeg", "avi")]
-    [InlineData("mp3,mpeg", null)]
     [InlineData("mp3,mpeg,avi", "mp4,jpg")]
     [InlineData("-mp3,mpeg", "mp3")]
     [InlineData("-mp3,mpeg,avi", "mpeg,avi")]
@@ -42,6 +42,7 @@ public class ContainerHelperTests
 
     [InlineData("mp3,mpeg", "mp3")]
     [InlineData("mp3,mpeg", "")]
+    [InlineData("mp3,mpeg", null)]
     [InlineData("mp3,mpeg,avi", "mp3,avi")]
     [InlineData("-mp3,mpeg", "avi")]
     [InlineData("-mp3,mpeg,avi", "mp4,jpg")]

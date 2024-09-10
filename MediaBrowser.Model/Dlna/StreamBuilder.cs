@@ -702,7 +702,8 @@ namespace MediaBrowser.Model.Dlna
                     directPlayProfile = directPlayInfo.Profile;
                     playlistItem.PlayMethod = directPlay.Value;
                     playlistItem.Container = NormalizeMediaSourceFormatIntoSingleContainer(item.Container, options.Profile, DlnaProfileType.Video, directPlayProfile);
-                    playlistItem.VideoCodecs = [videoStream.Codec];
+                    var videoCodec = videoStream?.Codec;
+                    playlistItem.VideoCodecs = videoCodec is null ? [] : [videoCodec];
 
                     if (directPlay == PlayMethod.DirectPlay)
                     {
