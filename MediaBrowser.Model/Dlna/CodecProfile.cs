@@ -48,7 +48,7 @@ public class CodecProfile
     public string? Container { get; set; }
 
     /// <summary>
-    /// Gets or sets the subcontainer(s) which this profile will be applied to.
+    /// Gets or sets the sub-container(s) which this profile will be applied to.
     /// </summary>
     [XmlAttribute("subcontainer")]
     public string? SubContainer { get; set; }
@@ -58,7 +58,7 @@ public class CodecProfile
     /// </summary>
     /// <param name="codecs">The codecs to match.</param>
     /// <param name="container">The container to match.</param>
-    /// <param name="useSubContainer">Consider subcontainers.</param>
+    /// <param name="useSubContainer">Consider sub-containers.</param>
     /// <returns>True if both conditions are met.</returns>
     public bool ContainsAnyCodec(string[] codecs, string? container, bool useSubContainer = false)
     {
@@ -71,7 +71,7 @@ public class CodecProfile
     /// </summary>
     /// <param name="codec">The codec to match.</param>
     /// <param name="container">The container to match.</param>
-    /// <param name="useSubContainer">Consider subcontainers.</param>
+    /// <param name="useSubContainer">Consider sub-containers.</param>
     /// <returns>True if both conditions are met.</returns>
     public bool ContainsAnyCodec(string? codec, string? container, bool useSubContainer = false)
     {
@@ -84,11 +84,11 @@ public class CodecProfile
     /// </summary>
     /// <param name="codec">The codec to match.</param>
     /// <param name="container">The container to match.</param>
-    /// <param name="useSubContainer">Consider subcontainers.</param>
+    /// <param name="useSubContainer">Consider sub-containers.</param>
     /// <returns>True if both conditions are met.</returns>
     public bool ContainsAnyCodec(ReadOnlySpan<char> codec, string? container, bool useSubContainer = false)
     {
         var containerToCheck = useSubContainer && string.Equals(Container, "hls", StringComparison.OrdinalIgnoreCase) ? SubContainer : Container;
-        return ContainerHelper.ContainsContainer(containerToCheck, false, container) && ContainerHelper.ContainsContainer(Codec, false, codec);
+        return ContainerHelper.ContainsContainer(containerToCheck, container) && ContainerHelper.ContainsContainer(Codec, false, codec);
     }
 }

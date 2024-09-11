@@ -394,7 +394,7 @@ namespace MediaBrowser.Model.Dlna
                 return inputContainer;
             }
 
-            var formats = inputContainer.SpanSplit(',');
+            var formats = ContainerHelper.Split(inputContainer);
             var playProfiles = playProfile is null ? profile.DirectPlayProfiles : [playProfile];
             foreach (var format in formats)
             {
@@ -754,7 +754,7 @@ namespace MediaBrowser.Model.Dlna
             {
                 // Can't direct play, find the transcoding profile
                 // If we do this for direct-stream we will overwrite the info
-                var (transcodingProfile, playMethod) = GetVideoTranscodeProfile(item, options, videoStream, audioStream, candidateAudioStreams, subtitleStream, playlistItem);
+                var (transcodingProfile, playMethod) = GetVideoTranscodeProfile(item, options, videoStream, audioStream, playlistItem);
 
                 if (transcodingProfile is not null && playMethod.HasValue)
                 {
@@ -799,8 +799,6 @@ namespace MediaBrowser.Model.Dlna
             MediaOptions options,
             MediaStream? videoStream,
             MediaStream? audioStream,
-            IEnumerable<MediaStream> candidateAudioStreams,
-            MediaStream? subtitleStream,
             StreamInfo playlistItem)
         {
             if (!(item.SupportsTranscoding || item.SupportsDirectStream))
@@ -828,7 +826,6 @@ namespace MediaBrowser.Model.Dlna
             var audioBitrate = audioStream?.BitRate;
             var audioSampleRate = audioStream?.SampleRate;
             var audioBitDepth = audioStream?.BitDepth;
-            var useSubContainer = playlistItem.SubProtocol == MediaStreamProtocol.hls;
 
             var analyzedProfiles = transcodingProfiles
                 .Select(transcodingProfile =>
@@ -843,7 +840,7 @@ namespace MediaBrowser.Model.Dlna
                         {
                             var appliedVideoConditions = options.Profile.CodecProfiles
                                 .Where(i => i.Type == CodecType.Video &&
-                                    i.ContainsAnyCodec(videoCodec, container, useSubContainer) &&
+                                    i.ContainsAnyCodec(videoCodec, container) &&
                                     i.ApplyConditions.All(applyCondition => ConditionProcessor.IsVideoConditionSatisfied(applyCondition, videoStream?.Width, videoStream?.Height, videoStream?.BitDepth, videoStream?.BitRate, videoStream?.Profile, videoStream?.VideoRangeType, videoStream?.Level, videoFramerate, videoStream?.PacketLength, timestamp, videoStream?.IsAnamorphic, videoStream?.IsInterlaced, videoStream?.RefFrames, numVideoStreams, numAudioStreams, videoStream?.CodecTag, videoStream?.IsAVC)))
                                 .Select(i =>
                                     i.Conditions.All(condition => ConditionProcessor.IsVideoConditionSatisfied(condition, videoStream?.Width, videoStream?.Height, videoStream?.BitDepth, videoStream?.BitRate, videoStream?.Profile, videoStream?.VideoRangeType, videoStream?.Level, videoFramerate, videoStream?.PacketLength, timestamp, videoStream?.IsAnamorphic, videoStream?.IsInterlaced, videoStream?.RefFrames, numVideoStreams, numAudioStreams, videoStream?.CodecTag, videoStream?.IsAVC)));
@@ -860,7 +857,7 @@ namespace MediaBrowser.Model.Dlna
                         {
                             var appliedVideoConditions = options.Profile.CodecProfiles
                                 .Where(i => i.Type == CodecType.VideoAudio &&
-                                    i.ContainsAnyCodec(audioCodec, container, useSubContainer) &&
+                                    i.ContainsAnyCodec(audioCodec, container) &&
                                     i.ApplyConditions.All(applyCondition => ConditionProcessor.IsVideoAudioConditionSatisfied(applyCondition, audioChannels, audioBitrate, audioSampleRate, audioBitDepth, audioProfile, false)))
                                 .Select(i =>
                                     i.Conditions.All(condition => ConditionProcessor.IsVideoAudioConditionSatisfied(condition, audioChannels, audioBitrate, audioSampleRate, audioBitDepth, audioProfile, false)));
@@ -913,7 +910,7 @@ namespace MediaBrowser.Model.Dlna
                 videoCodecs = videoCodecs.Where(codec => _supportedHlsVideoCodecs.Contains(codec)).ToList();
             }
 
-            playlistItem.VideoCodecs = videoCodecs.ToArray();
+            playlistItem.VideoCodecs = [.. videoCodecs];
 
             // Copy video codec options as a starting point, this applies to transcode and direct-stream
             playlistItem.MaxFramerate = videoStream?.ReferenceFrameRate;
