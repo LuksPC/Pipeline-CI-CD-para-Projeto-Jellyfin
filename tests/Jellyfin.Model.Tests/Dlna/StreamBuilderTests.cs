@@ -297,7 +297,7 @@ namespace Jellyfin.Model.Tests
         [InlineData("RokuSSPlus", "mp4-h264-ac3-aac-srt-2600k", PlayMethod.DirectPlay, (TranscodeReason)0, "Remux")] // #6450
         [InlineData("RokuSSPlus", "mp4-hevc-ac3-aac-srt-15200k", PlayMethod.DirectPlay, (TranscodeReason)0, "Remux")] // #6450
         // no streams
-        [InlineData("Chrome", "no-streams", PlayMethod.DirectPlay, (TranscodeReason)0, "Remux")]
+        [InlineData("Chrome", "no-streams", PlayMethod.Transcode, TranscodeReason.VideoCodecNotSupported, "Transcode")] // #6450
         // AndroidTV
         [InlineData("AndroidTVExoPlayer", "mp4-h264-ac3-aac-srt-2600k", PlayMethod.DirectPlay, (TranscodeReason)0, "Remux")]
         [InlineData("AndroidTVExoPlayer", "mp4-hevc-ac3-aac-srt-15200k", PlayMethod.DirectPlay, (TranscodeReason)0, "Remux")]

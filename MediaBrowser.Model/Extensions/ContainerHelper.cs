@@ -19,7 +19,7 @@ public static class ContainerHelper
     /// <returns>The result of the operation.</returns>
     public static bool ContainsContainer(string? profileContainers, string? inputContainer)
     {
-        var isNegativeList = string.IsNullOrEmpty(inputContainer);
+        var isNegativeList = false;
         if (profileContainers != null && profileContainers.StartsWith('-'))
         {
             isNegativeList = true;
@@ -39,7 +39,7 @@ public static class ContainerHelper
     /// <returns>The result of the operation.</returns>
     public static bool ContainsContainer(string? profileContainers, ReadOnlySpan<char> inputContainer)
     {
-        var isNegativeList = inputContainer.IsEmpty;
+        var isNegativeList = false;
         if (profileContainers != null && profileContainers.StartsWith('-'))
         {
             isNegativeList = true;
