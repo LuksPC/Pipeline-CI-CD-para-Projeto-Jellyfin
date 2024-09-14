@@ -191,6 +191,7 @@
  - [pret0rian8](https://github.com/pret0rian)
  - [jaina heartles](https://github.com/heartles)
  - [oxixes](https://github.com/oxixes)
+ - [Lampan-git](https://github.com/Lampan-git)
 
 # Emby Contributors
 
