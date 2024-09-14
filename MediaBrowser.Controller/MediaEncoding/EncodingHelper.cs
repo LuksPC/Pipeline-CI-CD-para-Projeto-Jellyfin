@@ -2381,7 +2381,7 @@ namespace MediaBrowser.Controller.MediaEncoding
             return 1;
         }
 
-        private static int ScaleBitrate(int bitrate, string inputVideoCodec, string outputVideoCodec)
+        public static int ScaleBitrate(int bitrate, string inputVideoCodec, string outputVideoCodec)
         {
             var inputScaleFactor = GetVideoBitrateScaleFactor(inputVideoCodec);
             var outputScaleFactor = GetVideoBitrateScaleFactor(outputVideoCodec);
@@ -2404,6 +2404,12 @@ namespace MediaBrowser.Controller.MediaEncoding
             else if (bitrate <= 3000000)
             {
                 scaleFactor = Math.Max(scaleFactor, 2);
+            }
+            else if (bitrate >= 30000000)
+            {
+                // Don't scale beyond 30Mbps, it is hardly visually noticeable for most codecs with our prefer speed encoding
+                // and will cause extremely high bitrate to be used for av1->h264 transcoding that will overload clients and encoders
+                scaleFactor = 1;
             }
 
             return Convert.ToInt32(scaleFactor * bitrate);
