@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using Jellyfin.Data.Enums;
 using MediaBrowser.Model.Drawing;
 using MediaBrowser.Model.Dto;
@@ -115,13 +114,13 @@ public class StreamInfo
     /// Gets or sets the audio codecs.
     /// </summary>
     /// <value>The audio codecs.</value>
-    public string[] AudioCodecs { get; set; }
+    public IReadOnlyList<string> AudioCodecs { get; set; }
 
     /// <summary>
     /// Gets or sets the video codecs.
     /// </summary>
     /// <value>The video codecs.</value>
-    public string[] VideoCodecs { get; set; }
+    public IReadOnlyList<string> VideoCodecs { get; set; }
 
     /// <summary>
     /// Gets or sets the audio stream index.
@@ -208,7 +207,7 @@ public class StreamInfo
     public long? RunTimeTicks { get; set; }
 
     /// <summary>
-    /// Gets or sets the transocide seek info.
+    /// Gets or sets the transcode seek info.
     /// </summary>
     /// <value>The transcode seek info.</value>
     public TranscodeSeekInfo TranscodeSeekInfo { get; set; }
@@ -228,7 +227,7 @@ public class StreamInfo
     /// Gets or sets the subtitle codecs.
     /// </summary>
     /// <value>The subtitle codecs.</value>
-    public string[] SubtitleCodecs { get; set; }
+    public IReadOnlyList<string> SubtitleCodecs { get; set; }
 
     /// <summary>
     /// Gets or sets the subtitle delivery method.
@@ -318,7 +317,7 @@ public class StreamInfo
             }
 
             var targetAudioCodecs = TargetAudioCodec;
-            var audioCodec = targetAudioCodecs.Length == 0 ? null : targetAudioCodecs[0];
+            var audioCodec = targetAudioCodecs.Count == 0 ? null : targetAudioCodecs[0];
             if (!string.IsNullOrEmpty(audioCodec))
             {
                 return GetTargetAudioBitDepth(audioCodec);
@@ -342,7 +341,7 @@ public class StreamInfo
             }
 
             var targetVideoCodecs = TargetVideoCodec;
-            var videoCodec = targetVideoCodecs.Length == 0 ? null : targetVideoCodecs[0];
+            var videoCodec = targetVideoCodecs.Count == 0 ? null : targetVideoCodecs[0];
             if (!string.IsNullOrEmpty(videoCodec))
             {
                 return GetTargetVideoBitDepth(videoCodec);
@@ -351,7 +350,6 @@ public class StreamInfo
             return TargetVideoStream?.BitDepth;
         }
     }
-
 
     /// <summary>
     /// Gets the target reference frames that will be in the output stream.
@@ -367,7 +365,7 @@ public class StreamInfo
             }
 
             var targetVideoCodecs = TargetVideoCodec;
-            var videoCodec = targetVideoCodecs.Length == 0 ? null : targetVideoCodecs[0];
+            var videoCodec = targetVideoCodecs.Count == 0 ? null : targetVideoCodecs[0];
             if (!string.IsNullOrEmpty(videoCodec))
             {
                 return GetTargetRefFrames(videoCodec);
@@ -406,7 +404,7 @@ public class StreamInfo
             }
 
             var targetVideoCodecs = TargetVideoCodec;
-            var videoCodec = targetVideoCodecs.Length == 0 ? null : targetVideoCodecs[0];
+            var videoCodec = targetVideoCodecs.Count == 0 ? null : targetVideoCodecs[0];
             if (!string.IsNullOrEmpty(videoCodec))
             {
                 return GetTargetVideoLevel(videoCodec);
@@ -445,7 +443,7 @@ public class StreamInfo
             }
 
             var targetVideoCodecs = TargetVideoCodec;
-            var videoCodec = targetVideoCodecs.Length == 0 ? null : targetVideoCodecs[0];
+            var videoCodec = targetVideoCodecs.Count == 0 ? null : targetVideoCodecs[0];
             if (!string.IsNullOrEmpty(videoCodec))
             {
                 return GetOption(videoCodec, "profile");
@@ -469,7 +467,7 @@ public class StreamInfo
             }
 
             var targetVideoCodecs = TargetVideoCodec;
-            var videoCodec = targetVideoCodecs.Length == 0 ? null : targetVideoCodecs[0];
+            var videoCodec = targetVideoCodecs.Count == 0 ? null : targetVideoCodecs[0];
             if (!string.IsNullOrEmpty(videoCodec)
                 && Enum.TryParse(GetOption(videoCodec, "rangetype"), true, out VideoRangeType videoRangeType))
             {
@@ -524,7 +522,7 @@ public class StreamInfo
             }
 
             var targetAudioCodecs = TargetAudioCodec;
-            var codec = targetAudioCodecs.Length == 0 ? null : targetAudioCodecs[0];
+            var codec = targetAudioCodecs.Count == 0 ? null : targetAudioCodecs[0];
             if (!string.IsNullOrEmpty(codec))
             {
                 return GetTargetRefFrames(codec);
@@ -538,7 +536,7 @@ public class StreamInfo
     /// Gets the audio codec that will be in the output stream.
     /// </summary>
     /// <value>The audio codec.</value>
-    public string[] TargetAudioCodec
+    public IReadOnlyList<string> TargetAudioCodec
     {
         get
         {
@@ -548,14 +546,14 @@ public class StreamInfo
 
             if (IsDirectStream)
             {
-                return string.IsNullOrEmpty(inputCodec) ? Array.Empty<string>() : new[] { inputCodec };
+                return string.IsNullOrEmpty(inputCodec) ? [] : [inputCodec];
             }
 
             foreach (string codec in AudioCodecs)
             {
                 if (string.Equals(codec, inputCodec, StringComparison.OrdinalIgnoreCase))
                 {
-                    return string.IsNullOrEmpty(codec) ? Array.Empty<string>() : new[] { codec };
+                    return string.IsNullOrEmpty(codec) ? [] : [codec];
                 }
             }
 
@@ -567,7 +565,7 @@ public class StreamInfo
     /// Gets the video codec that will be in the output stream.
     /// </summary>
     /// <value>The target video codec.</value>
-    public string[] TargetVideoCodec
+    public IReadOnlyList<string> TargetVideoCodec
     {
         get
         {
@@ -577,14 +575,14 @@ public class StreamInfo
 
             if (IsDirectStream)
             {
-                return string.IsNullOrEmpty(inputCodec) ? Array.Empty<string>() : new[] { inputCodec };
+                return string.IsNullOrEmpty(inputCodec) ? [] : [inputCodec];
             }
 
             foreach (string codec in VideoCodecs)
             {
                 if (string.Equals(codec, inputCodec, StringComparison.OrdinalIgnoreCase))
                 {
-                    return string.IsNullOrEmpty(codec) ? Array.Empty<string>() : new[] { codec };
+                    return string.IsNullOrEmpty(codec) ? [] : [codec];
                 }
             }
 
@@ -693,7 +691,7 @@ public class StreamInfo
             }
 
             var targetVideoCodecs = TargetVideoCodec;
-            var videoCodec = targetVideoCodecs.Length == 0 ? null : targetVideoCodecs[0];
+            var videoCodec = targetVideoCodecs.Count == 0 ? null : targetVideoCodecs[0];
             if (!string.IsNullOrEmpty(videoCodec))
             {
                 if (string.Equals(GetOption(videoCodec, "deinterlace"), "true", StringComparison.OrdinalIgnoreCase))
@@ -863,19 +861,17 @@ public class StreamInfo
         return null;
     }
 
-
     /// <summary>
     /// Returns this output stream URL for this class.
     /// </summary>
     /// <param name="baseUrl">The base Url.</param>
     /// <param name="accessToken">The access Token.</param>
-    /// <param name="query">Optional extra query.</param>
     /// <returns>A querystring representation of this object.</returns>
     public string ToUrl(string baseUrl, string? accessToken)
     {
         ArgumentException.ThrowIfNullOrEmpty(baseUrl);
 
-        var list = new List<string>();
+        List<string> list = [];
         foreach (NameValuePair pair in BuildParams(this, accessToken))
         {
             if (string.IsNullOrEmpty(pair.Value))
@@ -938,15 +934,15 @@ public class StreamInfo
         return string.Format(CultureInfo.InvariantCulture, "{0}/videos/{1}/stream{2}?{3}", baseUrl, ItemId, extension, queryString);
     }
 
-    private static IEnumerable<NameValuePair> BuildParams(StreamInfo item, string? accessToken)
+    private static List<NameValuePair> BuildParams(StreamInfo item, string? accessToken)
     {
-        var list = new List<NameValuePair>();
+        List<NameValuePair> list = [];
 
-        string audioCodecs = item.AudioCodecs.Length == 0 ?
+        string audioCodecs = item.AudioCodecs.Count == 0 ?
             string.Empty :
             string.Join(',', item.AudioCodecs);
 
-        string videoCodecs = item.VideoCodecs.Length == 0 ?
+        string videoCodecs = item.VideoCodecs.Count == 0 ?
             string.Empty :
             string.Join(',', item.VideoCodecs);
 
@@ -1026,7 +1022,7 @@ public class StreamInfo
 
         list.Add(new NameValuePair("Tag", item.MediaSource?.ETag ?? string.Empty));
 
-        string subtitleCodecs = item.SubtitleCodecs.Length == 0 ?
+        string subtitleCodecs = item.SubtitleCodecs.Count == 0 ?
             string.Empty :
             string.Join(",", item.SubtitleCodecs);
 
@@ -1068,19 +1064,36 @@ public class StreamInfo
         return list;
     }
 
+    /// <summary>
+    /// Gets the subtitle profiles.
+    /// </summary>
+    /// <param name="transcoderSupport">The transcoder support.</param>
+    /// <param name="includeSelectedTrackOnly">If only the selected track should be included.</param>
+    /// <param name="baseUrl">The base URL.</param>
+    /// <param name="accessToken">The access token.</param>
+    /// <returns>The <see cref="SubtitleStreamInfo"/> of the profiles.</returns>
     public IEnumerable<SubtitleStreamInfo> GetSubtitleProfiles(ITranscoderSupport transcoderSupport, bool includeSelectedTrackOnly, string baseUrl, string? accessToken)
     {
         return GetSubtitleProfiles(transcoderSupport, includeSelectedTrackOnly, false, baseUrl, accessToken);
     }
 
+    /// <summary>
+    /// Gets the subtitle profiles.
+    /// </summary>
+    /// <param name="transcoderSupport">The transcoder support.</param>
+    /// <param name="includeSelectedTrackOnly">If only the selected track should be included.</param>
+    /// <param name="enableAllProfiles">If all profiles are enabled.</param>
+    /// <param name="baseUrl">The base URL.</param>
+    /// <param name="accessToken">The access token.</param>
+    /// <returns>The <see cref="SubtitleStreamInfo"/> of the profiles.</returns>
     public IEnumerable<SubtitleStreamInfo> GetSubtitleProfiles(ITranscoderSupport transcoderSupport, bool includeSelectedTrackOnly, bool enableAllProfiles, string baseUrl, string? accessToken)
     {
         if (MediaSource is null)
         {
-            return Enumerable.Empty<SubtitleStreamInfo>();
+            return [];
         }
 
-        var list = new List<SubtitleStreamInfo>();
+        List<SubtitleStreamInfo> list = [];
 
         // HLS will preserve timestamps so we can just grab the full subtitle stream
         long startPositionTicks = SubProtocol == MediaStreamProtocol.hls

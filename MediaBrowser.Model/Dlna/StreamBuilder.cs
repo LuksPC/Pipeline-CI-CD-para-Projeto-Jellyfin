@@ -50,7 +50,7 @@ namespace MediaBrowser.Model.Dlna
         {
             ValidateMediaOptions(options, false);
 
-            var streams = new List<StreamInfo>();
+            List<StreamInfo> streams = [];
             foreach (var mediaSource in options.MediaSources)
             {
                 if (!(string.IsNullOrEmpty(options.MediaSourceId)
@@ -225,7 +225,7 @@ namespace MediaBrowser.Model.Dlna
                 ? options.MediaSources
                 : options.MediaSources.Where(x => string.Equals(x.Id, options.MediaSourceId, StringComparison.OrdinalIgnoreCase));
 
-            var streams = new List<StreamInfo>();
+            List<StreamInfo> streams = [];
             foreach (var mediaSourceInfo in mediaSources)
             {
                 var streamInfo = BuildVideoItem(mediaSourceInfo, options);
@@ -533,7 +533,6 @@ namespace MediaBrowser.Model.Dlna
         private static int? GetDefaultSubtitleStreamIndex(MediaSourceInfo item, SubtitleProfile[] subtitleProfiles)
         {
             int highestScore = -1;
-
             foreach (var stream in item.MediaStreams)
             {
                 if (stream.Type == MediaStreamType.Subtitle
@@ -544,7 +543,7 @@ namespace MediaBrowser.Model.Dlna
                 }
             }
 
-            var topStreams = new List<MediaStream>();
+            List<MediaStream> topStreams = [];
             foreach (var stream in item.MediaStreams)
             {
                 if (stream.Type == MediaStreamType.Subtitle && stream.Score.HasValue && stream.Score.Value == highestScore)
@@ -651,7 +650,7 @@ namespace MediaBrowser.Model.Dlna
             }
 
             // Collect candidate audio streams
-            ICollection<MediaStream> candidateAudioStreams = audioStream is null ? Array.Empty<MediaStream>() : [audioStream];
+            ICollection<MediaStream> candidateAudioStreams = audioStream is null ? [] : [audioStream];
             if (!options.AudioStreamIndex.HasValue || options.AudioStreamIndex < 0)
             {
                 if (audioStream?.IsDefault == true)
@@ -714,7 +713,7 @@ namespace MediaBrowser.Model.Dlna
                         {
                             playlistItem.AudioStreamIndex = audioStreamIndex;
                             var audioCodec = item.GetMediaStream(MediaStreamType.Audio, audioStreamIndex.Value)?.Codec;
-                            playlistItem.AudioCodecs = audioCodec is null ? Array.Empty<string>() : [audioCodec];
+                            playlistItem.AudioCodecs = audioCodec is null ? [] : [audioCodec];
                         }
                     }
                     else if (directPlay == PlayMethod.DirectStream)
@@ -1021,7 +1020,7 @@ namespace MediaBrowser.Model.Dlna
                 {
                     if (condition.ContainsAnyCodec(transcodingVideoCodec, container, useSubContainer))
                     {
-                        ApplyTranscodingConditions(playlistItem, condition.Conditions, transcodingVideoCodec.ToString(), true, true);
+                        ApplyTranscodingConditions(playlistItem, condition.Conditions, transcodingVideoCodec, true, true);
                         continue;
                     }
                 }
@@ -1053,7 +1052,7 @@ namespace MediaBrowser.Model.Dlna
                 {
                     if (codecProfile.ContainsAnyCodec(transcodingAudioCodec, container))
                     {
-                        ApplyTranscodingConditions(playlistItem, codecProfile.Conditions, transcodingAudioCodec.ToString(), true, true);
+                        ApplyTranscodingConditions(playlistItem, codecProfile.Conditions, transcodingAudioCodec, true, true);
                         break;
                     }
                 }
@@ -1119,9 +1118,9 @@ namespace MediaBrowser.Model.Dlna
             return 192000;
         }
 
-        private static int GetAudioBitrate(long maxTotalBitrate, string[] targetAudioCodecs, MediaStream? audioStream, StreamInfo item)
+        private static int GetAudioBitrate(long maxTotalBitrate, IReadOnlyList<string> targetAudioCodecs, MediaStream? audioStream, StreamInfo item)
         {
-            string? targetAudioCodec = targetAudioCodecs.Length == 0 ? null : targetAudioCodecs[0];
+            string? targetAudioCodec = targetAudioCodecs.Count == 0 ? null : targetAudioCodecs[0];
 
             int? targetAudioChannels = item.GetTargetAudioChannels(targetAudioCodec);
 
@@ -1138,7 +1137,7 @@ namespace MediaBrowser.Model.Dlna
                     && audioStream.Channels.HasValue
                     && audioStream.Channels.Value > targetAudioChannels.Value)
                 {
-                    // Reduce the bitrate if we're downmixing.
+                    // Reduce the bitrate if we're down mixing.
                     defaultBitrate = GetDefaultAudioBitrate(targetAudioCodec, targetAudioChannels);
                 }
                 else if (targetAudioChannels.HasValue
@@ -1146,8 +1145,8 @@ namespace MediaBrowser.Model.Dlna
                          && audioStream.Channels.Value <= targetAudioChannels.Value
                          && !string.IsNullOrEmpty(audioStream.Codec)
                          && targetAudioCodecs is not null
-                         && targetAudioCodecs.Length > 0
-                         && !Array.Exists(targetAudioCodecs, elem => string.Equals(audioStream.Codec, elem, StringComparison.OrdinalIgnoreCase)))
+                         && targetAudioCodecs.Count > 0
+                         && !targetAudioCodecs.Any(elem => string.Equals(audioStream.Codec, elem, StringComparison.OrdinalIgnoreCase)))
                 {
                     // Shift the bitrate if we're transcoding to a different audio codec.
                     defaultBitrate = GetDefaultAudioBitrate(targetAudioCodec, audioStream.Channels.Value);
