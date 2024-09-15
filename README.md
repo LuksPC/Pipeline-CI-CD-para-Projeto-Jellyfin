@@ -10,6 +10,6 @@ O projeto utiliza GitHub Actions para um pipeline CI/CD que inclui:
 6. **Publicação de Artefatos**: Publica artefatos de build.
 7. **Deploy Opcional**: Cria e publica uma imagem Docker do Jellyfin.
 
-Para mais detalhes, veja os arquivos `.github/workflows/jellyfin-ci.yml
-.github/workflows/
-.github/workflows/`.
+Para mais detalhes, veja os arquivos `.github/workflows/jellyfin-ci.yml`
+                                     `.github/workflows/buildSonar.yml`
+                                     `.github/workflows/buildCodecov.yml`.
