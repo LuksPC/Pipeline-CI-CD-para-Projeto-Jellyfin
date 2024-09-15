@@ -18,7 +18,8 @@ jobs:
         uses: actions/setup-node@v4
 
       - name: Install dependencies
-        run: npm install
+        run:  cd path/to/frontend/home/runner/.npm/_logs/2024-09-15T20_22_20_622Z-debug-0.log
+              npm install
 
       - name: Run tests
         run: npx jest --coverage
