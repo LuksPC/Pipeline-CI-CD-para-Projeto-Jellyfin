@@ -1,0 +1,44 @@
+{
+  "name": "codecov-action",
+  "version": "4.5.0",
+  "description": "Upload coverage reports to Codecov from GitHub Actions",
+  "main": "index.js",
+  "scripts": {
+    "build": "ncc build src/index.ts --source-map",
+    "lint": "eslint src/**/*.ts",
+    "test": "npm run test-script && npm run test-calculator && npm run test-coverage",
+    "test-calculator": "jest --testPathPattern=demo/calculator/ --coverage --coverageDirectory=coverage/calculator",
+    "test-coverage": "jest --testPathPattern=demo/coverage-test/ --coverage --coverageDirectory=coverage/coverage-test",
+    "test-script": "jest --testPathPattern=src/ --coverage --coverageDirectory=coverage/script"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codecov/codecov-action.git"
+  },
+  "keywords": [],
+  "author": "Codecov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/codecov/codecov-action/issues"
+  },
+  "homepage": "https://github.com/codecov/codecov-action#readme",
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "@actions/exec": "^1.1.1",
+    "@actions/github": "^6.0.0",
+    "undici": "5.28.4"
+  },
+  "devDependencies": {
+    "@octokit/webhooks-types": "^7.5.1",
+    "@types/jest": "^29.5.13",
+    "@typescript-eslint/eslint-plugin": "^7.16.1",
+    "@typescript-eslint/parser": "^7.18.0",
+    "@vercel/ncc": "^0.38.1",
+    "eslint": "^8.57.0",
+    "eslint-config-google": "^0.14.0",
+    "jest": "^29.7.0",
+    "jest-junit": "^16.0.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.6.2"
+  }
+}
