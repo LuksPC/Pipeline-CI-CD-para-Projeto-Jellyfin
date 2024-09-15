@@ -61,19 +61,6 @@ public class CodecProfile
     /// <param name="container">The container to match.</param>
     /// <param name="useSubContainer">Consider sub-containers.</param>
     /// <returns>True if both conditions are met.</returns>
-    public bool ContainsAnyCodec(string[] codecs, string? container, bool useSubContainer = false)
-    {
-        var containerToCheck = useSubContainer && string.Equals(Container, "hls", StringComparison.OrdinalIgnoreCase) ? SubContainer : Container;
-        return ContainerHelper.ContainsContainer(containerToCheck, container) && codecs.Any(c => ContainerHelper.ContainsContainer(Codec, false, c));
-    }
-
-    /// <summary>
-    /// Checks to see whether the codecs and containers contain the given parameters.
-    /// </summary>
-    /// <param name="codecs">The codecs to match.</param>
-    /// <param name="container">The container to match.</param>
-    /// <param name="useSubContainer">Consider sub-containers.</param>
-    /// <returns>True if both conditions are met.</returns>
     public bool ContainsAnyCodec(IReadOnlyList<string> codecs, string? container, bool useSubContainer = false)
     {
         var containerToCheck = useSubContainer && string.Equals(Container, "hls", StringComparison.OrdinalIgnoreCase) ? SubContainer : Container;
@@ -89,8 +76,7 @@ public class CodecProfile
     /// <returns>True if both conditions are met.</returns>
     public bool ContainsAnyCodec(string? codec, string? container, bool useSubContainer = false)
     {
-        var containerToCheck = useSubContainer && string.Equals(Container, "hls", StringComparison.OrdinalIgnoreCase) ? SubContainer : Container;
-        return ContainerHelper.ContainsContainer(containerToCheck, container) && ContainerHelper.ContainsContainer(Codec, false, codec);
+        return ContainsAnyCodec(codec.AsSpan(), container, useSubContainer);
     }
 
     /// <summary>

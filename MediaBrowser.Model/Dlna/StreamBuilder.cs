@@ -128,7 +128,7 @@ namespace MediaBrowser.Model.Dlna
             if (directPlayMethod is PlayMethod.DirectStream)
             {
                 var remuxContainer = item.TranscodingContainer ?? "ts";
-                var supportedHlsContainers = new[] { "ts", "mp4" };
+                string[] supportedHlsContainers = ["ts", "mp4"];
                 // If the container specified for the profile is an HLS supported container, use that container instead, overriding the preference
                 // The client should be responsible to ensure this container is compatible
                 remuxContainer = Array.Exists(supportedHlsContainers, element => string.Equals(element, directPlayInfo.Profile?.Container, StringComparison.OrdinalIgnoreCase)) ? directPlayInfo.Profile?.Container : remuxContainer;
@@ -389,7 +389,7 @@ namespace MediaBrowser.Model.Dlna
         /// <returns>The normalized input container.</returns>
         public static string NormalizeMediaSourceFormatIntoSingleContainer(string inputContainer, DeviceProfile? profile, DlnaProfileType type, DirectPlayProfile? playProfile = null)
         {
-            if (!inputContainer.Contains(',', StringComparison.OrdinalIgnoreCase) || profile is null)
+            if (profile is null || !inputContainer.Contains(',', StringComparison.OrdinalIgnoreCase))
             {
                 return inputContainer;
             }
@@ -895,7 +895,7 @@ namespace MediaBrowser.Model.Dlna
             string? audioCodec)
         {
             // Prefer matching video codecs
-            List<string> videoCodecs = [.. ContainerHelper.Split(videoCodec)];
+            var videoCodecs = ContainerHelper.Split(videoCodec).ToList();
 
             if (videoCodecs.Count == 0 && videoStream is not null)
             {
@@ -909,7 +909,7 @@ namespace MediaBrowser.Model.Dlna
                 videoCodecs = videoCodecs.Where(codec => _supportedHlsVideoCodecs.Contains(codec)).ToList();
             }
 
-            playlistItem.VideoCodecs = [.. videoCodecs];
+            playlistItem.VideoCodecs = videoCodecs;
 
             // Copy video codec options as a starting point, this applies to transcode and direct-stream
             playlistItem.MaxFramerate = videoStream?.ReferenceFrameRate;
@@ -930,7 +930,7 @@ namespace MediaBrowser.Model.Dlna
             }
 
             // Prefer matching audio codecs, could do better here
-            List<string> audioCodecs = [.. ContainerHelper.Split(audioCodec)];
+            var audioCodecs = ContainerHelper.Split(audioCodec).ToList();
 
             if (audioCodecs.Count == 0 && audioStream is not null)
             {
@@ -963,13 +963,13 @@ namespace MediaBrowser.Model.Dlna
                 playlistItem.TargetAudioStream.Channels = playlistItem.TranscodingMaxAudioChannels;
             }
 
-            playlistItem.AudioCodecs = [.. audioCodecs];
+            playlistItem.AudioCodecs = audioCodecs;
             if (directAudioStream is not null)
             {
                 audioStream = directAudioStream;
                 playlistItem.AudioStreamIndex = audioStream.Index;
                 audioCodecs = [audioStream.Codec];
-                playlistItem.AudioCodecs = [.. audioCodecs];
+                playlistItem.AudioCodecs = audioCodecs;
 
                 // Copy matching audio codec options
                 playlistItem.AudioSampleRate = audioStream.SampleRate;
@@ -1285,7 +1285,7 @@ namespace MediaBrowser.Model.Dlna
                         !checkVideoConditions(codecProfile.ApplyConditions).Any())
                     .SelectMany(codecProfile => checkVideoConditions(codecProfile.Conditions)));
 
-            // Check audiocandidates profile conditions
+            // Check audio candidates profile conditions
             var audioStreamMatches = candidateAudioStreams.ToDictionary(s => s, audioStream => CheckVideoAudioStreamDirectPlay(options, mediaSource, container, audioStream));
 
             TranscodeReason subtitleProfileReasons = 0;
@@ -1302,7 +1302,7 @@ namespace MediaBrowser.Model.Dlna
                 }
             }
 
-            var rankings = new[] { VideoReasons, AudioReasons, ContainerReasons };
+            TranscodeReason[] rankings = [VideoReasons, AudioReasons, ContainerReasons];
             var rank = (ref TranscodeReason a) =>
                 {
                     var index = 1;
@@ -1461,7 +1461,7 @@ namespace MediaBrowser.Model.Dlna
         /// <param name="playMethod">The <see cref="PlayMethod"/>.</param>
         /// <param name="transcoderSupport">The <see cref="ITranscoderSupport"/>.</param>
         /// <param name="outputContainer">The output container.</param>
-        /// <param name="transcodingSubProtocol">The subtitle transoding protocol.</param>
+        /// <param name="transcodingSubProtocol">The subtitle transcoding protocol.</param>
         /// <returns>The normalized input container.</returns>
         public static SubtitleProfile GetSubtitleProfile(
             MediaSourceInfo mediaSource,

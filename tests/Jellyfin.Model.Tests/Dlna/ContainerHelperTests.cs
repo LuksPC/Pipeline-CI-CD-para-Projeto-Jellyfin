@@ -18,33 +18,33 @@ public class ContainerHelperTests
         Assert.True(_emptyContainerProfile.ContainsContainer(containers));
     }
 
+    [Theory]
     [InlineData("mp3,mpeg", "mp3")]
     [InlineData("mp3,mpeg,avi", "mp3,avi")]
     [InlineData("-mp3,mpeg", "avi")]
     [InlineData("-mp3,mpeg,avi", "mp4,jpg")]
-    [Theory]
     public void ContainsContainer_InList_ReturnsTrue(string container, string? extension)
     {
         Assert.True(ContainerHelper.ContainsContainer(container, extension));
     }
 
+    [Theory]
     [InlineData("mp3,mpeg", "avi")]
     [InlineData("mp3,mpeg,avi", "mp4,jpg")]
     [InlineData("mp3,mpeg", null)]
     [InlineData("mp3,mpeg", "")]
     [InlineData("-mp3,mpeg", "mp3")]
     [InlineData("-mp3,mpeg,avi", "mpeg,avi")]
-    [Theory]
     public void ContainsContainer_NotInList_ReturnsFalse(string container, string? extension)
     {
         Assert.False(ContainerHelper.ContainsContainer(container, extension));
     }
 
+    [Theory]
     [InlineData("mp3,mpeg", "mp3")]
     [InlineData("mp3,mpeg,avi", "mp3,avi")]
     [InlineData("-mp3,mpeg", "avi")]
     [InlineData("-mp3,mpeg,avi", "mp4,jpg")]
-    [Theory]
     public void ContainsContainer_InList_ReturnsTrue_SpanVersion(string container, string? extension)
     {
         Assert.True(ContainerHelper.ContainsContainer(container, extension.AsSpan()));

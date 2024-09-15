@@ -89,7 +89,7 @@ public static class ContainerHelper
         {
             foreach (var profile in allProfileContainers)
             {
-                if (MemoryExtensions.Equals(profile, container, StringComparison.OrdinalIgnoreCase))
+                if (container.Equals(profile, StringComparison.OrdinalIgnoreCase))
                 {
                     return !isNegativeList;
                 }
@@ -120,7 +120,7 @@ public static class ContainerHelper
         {
             foreach (var profile in profileContainers)
             {
-                if (MemoryExtensions.Equals(profile, container, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(profile, container, StringComparison.OrdinalIgnoreCase))
                 {
                     return !isNegativeList;
                 }
