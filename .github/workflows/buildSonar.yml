@@ -1,4 +1,4 @@
-# SonarCloud
+
 name: SonarCloud
 on:
   push:
