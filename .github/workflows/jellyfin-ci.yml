@@ -33,9 +33,4 @@ jobs:
     - name: Publish build artifacts
       run: dotnet publish --configuration Release --output ./output
 
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: jellyfin-build
-        path: ./output
 
