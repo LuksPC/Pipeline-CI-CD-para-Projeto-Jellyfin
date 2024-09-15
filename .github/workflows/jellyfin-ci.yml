@@ -1,1 +1,41 @@
+name: Jellyfin CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '7.0.x'  # Atualize para a versão mais recente se necessário
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build the project
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Run tests
+      run: dotnet test --no-restore --verbosity normal
+
+    - name: Publish build artifacts
+      run: dotnet publish --configuration Release --output ./output
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: jellyfin-build
+        path: ./output
 
