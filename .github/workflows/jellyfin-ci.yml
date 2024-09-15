@@ -33,4 +33,12 @@ jobs:
     - name: Publish build artifacts
       run: dotnet publish --configuration Release --output ./output
 
-
+    - name: Set up SonarCloud
+      uses: sonarsource/sonarcloud-github-action@v1
+      with:
+        args: >
+          sonar-scanner
+          -Dsonar.projectKey=lukspc_sonarcloud-github-jellyfin
+          -Dsonar.organization=Lucas Pereira Cavalcante
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
