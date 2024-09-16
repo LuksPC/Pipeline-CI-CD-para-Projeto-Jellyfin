@@ -15,7 +15,7 @@ Para mais detalhes, veja os arquivos `.github/workflows/jellyfin-ci.yml`
                                      `.github/workflows/buildSonar.yml`
                                      `.github/workflows/buildCodecov.yml`.
 
-#SonarCloud: 
+SonarCloud: 
 O SonarCloud é uma solução SaaS (Software as a Service) hospedada pela
 SonarSource na AWS. Ideal para equipes que preferem um ambiente totalmente
 baseado em nuvem, o SonarCloud oferece integração fácil com plataformas populares
@@ -25,5 +25,5 @@ obtenção de métricas de qualidade de código sem a necessidade de configuraç
 extensa, e é uma ferramenta com opção gratuita para estudos. E por esses motivos, eu
 a escolhi.
 
-#Codecov com coverlet:
+Codecov com coverlet:
 A ferramenta Codecov mede a cobertura de teste de código, identificando quais métodos e instruções não são testados. Os resultados podem ser usados para determinar onde escrever testes, melhorando a qualidade do código. O codecov oferece integração, feedback em pull request, integração com Sentry, gratuito para projetos open source, status check, e estadisponível para os repositórios de origem GitHub, GitHub Enterprise Server e Bitbucket. Por esses motivos essa ferramenta foi escolhida.
